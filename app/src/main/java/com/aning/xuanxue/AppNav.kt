@@ -57,6 +57,7 @@ import com.aning.xuanxue.feature.status.FeatureStatusScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.feature.update.UpdateCenterScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
+import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.delay
@@ -84,6 +85,7 @@ fun AppNav() {
         composable("guide") { GuideScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("seal") { SealScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("knowledge") { KnowledgeScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("xuanqi") { XuanqiScreen(onBack = { nav.popBackStack() }, onOpenAi = { nav.navigate("ai") }) }
         composable("talisman") { TalismanScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("dream") { DreamScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("wellness") { WellnessScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
@@ -181,6 +183,7 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("seal", "我的印记", "五行印 · 八卦印 · 今日档案", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
+        Entry("xuanqi", "玄奇志", "山海经 · 神怪 · 玄幻 · 民俗", Icons.Filled.AutoAwesome),
         Entry("talisman", "今日符卡", "抽卡 · 印记 · 行动提醒", Icons.Filled.AutoAwesome),
         Entry("dream", "梦境记录", "解梦 · 情绪 · 民俗象意", Icons.Filled.NightsStay),
         Entry("wellness", "五行养生", "日课 · 呼吸 · 情绪调节", Icons.Filled.Spa),
