@@ -94,7 +94,7 @@ fun AppNav() {
     }
 
     val gameVm: GameStateViewModel = viewModel()
-        val onboardingDone by gameVm.onboardingDone.collectAsStateWithLifecycle()
+        val onboardingDone by gameVm.onboardingDone.collectAsState()
         NavHost(navController = nav, startDestination = "splash") {
         composable("splash") {
             SplashScreen {
