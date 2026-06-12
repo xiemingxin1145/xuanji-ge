@@ -39,6 +39,7 @@ fun BaziScreen(onBack: () -> Unit) {
     var mo by remember { mutableStateOf((now.get(Calendar.MONTH) + 1).toString()) }
     var d by remember { mutableStateOf(now.get(Calendar.DAY_OF_MONTH).toString()) }
     var h by remember { mutableStateOf(now.get(Calendar.HOUR_OF_DAY).toString()) }
+    var male by remember { mutableStateOf(true) }
     var result by remember { mutableStateOf<EightChar?>(null) }
     var err by remember { mutableStateOf<String?>(null) }
 
@@ -52,6 +53,19 @@ fun BaziScreen(onBack: () -> Unit) {
                     NumField(mo, { mo = it }, "月", Modifier.weight(1f))
                     NumField(d, { d = it }, "日", Modifier.weight(1f))
                     NumField(h, { h = it }, "时", Modifier.weight(1f))
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = { male = true },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (male) Gold else InkSurface2, contentColor = if (male) Ink else TextMain)
+                    ) { Text("男命") }
+                    Button(
+                        onClick = { male = false },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (!male) Gold else InkSurface2, contentColor = if (!male) Ink else TextMain)
+                    ) { Text("女命") }
                 }
                 Spacer(Modifier.height(14.dp))
                 Button(
@@ -76,7 +90,7 @@ fun BaziScreen(onBack: () -> Unit) {
                 }
             }
 
-            result?.let { ec -> BaziResult(ec) }
+            result?.let { ec -> BaziResult(ec, male, y.toIntOrNull() ?: now.get(Calendar.YEAR)) }
         }
     }
 }
@@ -99,7 +113,7 @@ private fun NumField(value: String, onChange: (String) -> Unit, label: String, m
 }
 
 @Composable
-private fun BaziResult(ec: EightChar) {
+private fun BaziResult(ec: EightChar, male: Boolean, startYear: Int) {
     val pillars = listOf(
         Triple("年柱", ec.year, ec.yearShiShenGan to ec.yearHideGan),
         Triple("月柱", ec.month, ec.monthShiShenGan to ec.monthHideGan),
@@ -164,12 +178,73 @@ private fun BaziResult(ec: EightChar) {
     XCard(Modifier.fillMaxWidth()) {
         SectionTitle("命主信息")
         Spacer(Modifier.height(8.dp))
+        KV("性别", if (male) "男命" else "女命")
         KV("日元", "${ec.dayGan}（${ec.dayWuXing}）")
         KV("胎元", ec.taiYuan)
         KV("命宫", ec.mingGong)
         KV("身宫", ec.shenGong)
         Spacer(Modifier.height(6.dp))
         Text("注：八字仅供参考娱乐，喜用神需结合日主旺衰与调候，非简单“缺即补”。", color = TextSub, fontSize = 11.sp, lineHeight = 16.sp)
+    }
+
+    BaziProPanel(ec, male, startYear)
+}
+
+@Composable
+private fun BaziProPanel(ec: EightChar, male: Boolean, startYear: Int) {
+    val forward = remember(ec.year, male) { BaziProCalculator.luckForward(ec.year, male) }
+    val luck = remember(ec.month, forward) { BaziProCalculator.majorLuck(ec.month, forward) }
+    val hits = remember(ec.year, ec.month, ec.day, ec.time, ec.dayXunKong) {
+        BaziProCalculator.shensha(ec.year, ec.month, ec.day, ec.time, ec.dayXunKong)
+    }
+    val flowYears = remember(startYear) { BaziProCalculator.flowYears(startYear, 10) }
+
+    XCard(Modifier.fillMaxWidth()) {
+        SectionTitle("神煞速查")
+        Spacer(Modifier.height(8.dp))
+        if (hits.isEmpty()) {
+            Text("未命中本版内置常用神煞。", color = TextSub, fontSize = 13.sp)
+        } else {
+            hits.take(16).forEach { hit ->
+                Text(hit.name, color = GoldBright, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("依据：${hit.basis} → ${hit.target}", color = Jade, fontSize = 12.sp)
+                Text(hit.meaning, color = TextMain, fontSize = 12.sp, lineHeight = 18.sp)
+                Text(hit.source, color = TextSub, fontSize = 10.sp)
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+        Text("本版含天乙、文昌、禄神、羊刃、桃花、驿马、华盖、将星、旬空等常用项。", color = TextSub, fontSize = 11.sp)
+    }
+
+    XCard(Modifier.fillMaxWidth()) {
+        SectionTitle("大运序列")
+        Spacer(Modifier.height(8.dp))
+        KV("排法", if (forward) "阳男阴女顺排" else "阴男阳女逆排")
+        KV("基准", "月柱 ${ec.month}")
+        Spacer(Modifier.height(8.dp))
+        luck.forEach { item ->
+            Row(Modifier.fillMaxWidth()) {
+                Text(item.ageRange, color = TextSub, fontSize = 12.sp, modifier = Modifier.width(72.dp))
+                Text(item.pillar, color = GoldBright, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(52.dp))
+                Text(item.direction, color = Jade, fontSize = 12.sp)
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text("起运岁数须按出生后/前节气差精算，本版先列十年干支序列，供专业用户校正。", color = TextSub, fontSize = 11.sp, lineHeight = 16.sp)
+    }
+
+    XCard(Modifier.fillMaxWidth()) {
+        SectionTitle("流年十年")
+        Spacer(Modifier.height(8.dp))
+        flowYears.forEach { fy ->
+            Row(Modifier.fillMaxWidth()) {
+                Text("${fy.year}", color = TextSub, fontSize = 12.sp, modifier = Modifier.width(56.dp))
+                Text(fy.pillar, color = GoldBright, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(48.dp))
+                Text("配大运原局合参", color = TextMain, fontSize = 12.sp)
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text("流年不作单独断言，需与大运、原局、岁运并临、合冲刑害综合判断。", color = TextSub, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 
