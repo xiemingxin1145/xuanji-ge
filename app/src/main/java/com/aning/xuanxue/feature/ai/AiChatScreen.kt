@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aning.xuanxue.R
+import com.aning.xuanxue.core.sound.XuanSound
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.launch
@@ -60,6 +61,7 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
     fun send(text: String) {
         if (text.isBlank() || loading) return
         if (!config.isReady) return
+        XuanSound.play(ctx, XuanSound.Effect.Click)
         msgs.add(ChatMsg("user", text))
         input = ""
         loading = true
@@ -67,10 +69,13 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
             listState.animateScrollToItem((msgs.size - 1).coerceAtLeast(0))
             val r = AiClient.chat(config, msgs.toList())
             loading = false
-            msgs.add(
-                if (r.isSuccess) ChatMsg("assistant", r.getOrThrow())
-                else ChatMsg("assistant", "（请求失败：${r.exceptionOrNull()?.message}）")
-            )
+            if (r.isSuccess) {
+                msgs.add(ChatMsg("assistant", r.getOrThrow()))
+                XuanSound.play(ctx, XuanSound.Effect.AiReply)
+            } else {
+                msgs.add(ChatMsg("assistant", "（请求失败：${r.exceptionOrNull()?.message}）"))
+                XuanSound.play(ctx, XuanSound.Effect.Warning)
+            }
             listState.animateScrollToItem((msgs.size - 1).coerceAtLeast(0))
         }
     }
@@ -129,7 +134,10 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                     )
                     Spacer(Modifier.height(12.dp))
                     Button(
-                        onClick = onSettings,
+                        onClick = {
+                            XuanSound.play(ctx, XuanSound.Effect.Open)
+                            onSettings()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
                     ) { Text("接入问玄师") }
                 }
