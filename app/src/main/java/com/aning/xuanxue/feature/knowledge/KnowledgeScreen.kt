@@ -1,12 +1,14 @@
 package com.aning.xuanxue.feature.knowledge
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,8 +38,12 @@ fun KnowledgeScreen(
     onAiPrompt: (String) -> Unit
 ) {
     var category by remember { mutableStateOf(KnowledgeCategory.Daoism) }
+    var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf<KnowledgeArticle?>(null) }
-    val list = remember(category) { KnowledgeRepository.byCategory(category) }
+    val list = remember(category, query) {
+        if (query.isBlank()) KnowledgeRepository.byCategory(category)
+        else KnowledgeRepository.search(query)
+    }
 
     XScaffold(title = "玄门资料库", onBack = onBack) { padding ->
         ScrollColumn(padding) {
@@ -45,47 +51,81 @@ fun KnowledgeScreen(
                 SectionTitle("传统文化资料库")
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "先做本地知识库，不联网也能查。后续可继续扩成道教、民俗、风水、梦境、养生、面相手相大全。",
+                    "本地知识库，不联网也能查。可搜：罗盘、梦、手相、冬至、符卡、五行。",
                     color = TextSub,
                     fontSize = 13.sp,
                     lineHeight = 19.sp
                 )
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = {
+                        query = it
+                        selected = null
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("搜索资料库…", color = TextSub, fontSize = 13.sp) },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Gold,
+                        unfocusedBorderColor = TextSub.copy(alpha = 0.35f),
+                        focusedTextColor = TextMain,
+                        unfocusedTextColor = TextMain,
+                        cursorColor = Gold
+                    )
+                )
             }
 
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                KnowledgeCategory.values().forEach { c ->
-                    AssistChip(
-                        onClick = {
-                            category = c
-                            selected = null
-                        },
-                        label = { Text(c.label, fontSize = 12.sp) },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = if (c == category) Gold else InkSurface2,
-                            labelColor = if (c == category) Ink else TextMain
+            if (query.isBlank()) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    KnowledgeCategory.values().forEach { c ->
+                        AssistChip(
+                            onClick = {
+                                category = c
+                                selected = null
+                            },
+                            label = { Text(c.label, fontSize = 12.sp) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (c == category) Gold else InkSurface2,
+                                labelColor = if (c == category) Ink else TextMain
+                            )
                         )
-                    )
+                    }
+                }
+            } else {
+                XCard(Modifier.fillMaxWidth()) {
+                    Text("搜索结果：${list.size} 条", color = GoldBright, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(4.dp))
+                    Text("正在全库搜索：$query", color = TextSub, fontSize = 12.sp)
                 }
             }
 
             if (selected == null) {
-                list.forEach { article ->
+                if (list.isEmpty()) {
                     XCard(Modifier.fillMaxWidth()) {
-                        Text(article.title, color = GoldBright, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        Text("没有找到相关资料。", color = TextMain, fontSize = 14.sp)
                         Spacer(Modifier.height(6.dp))
-                        Text(article.summary, color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
-                        Spacer(Modifier.height(8.dp))
-                        Text(article.tags.joinToString(" · "), color = TextSub, fontSize = 11.sp)
-                        Spacer(Modifier.height(10.dp))
-                        Button(
-                            onClick = { selected = article },
-                            colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
-                        ) { Text("查看详情") }
+                        Text("可以换个词试试，比如：罗盘、五行、梦、水、手相、节气。", color = TextSub, fontSize = 12.sp)
+                    }
+                } else {
+                    list.forEach { article ->
+                        XCard(Modifier.fillMaxWidth()) {
+                            Text(article.title, color = GoldBright, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(6.dp))
+                            Text(article.summary, color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                            Spacer(Modifier.height(8.dp))
+                            Text("${article.category.label} · ${article.tags.joinToString(" · ")}", color = TextSub, fontSize = 11.sp)
+                            Spacer(Modifier.height(10.dp))
+                            Button(
+                                onClick = { selected = article },
+                                colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
+                            ) { Text("查看详情") }
+                        }
                     }
                 }
             } else {
