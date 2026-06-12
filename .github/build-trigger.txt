@@ -1,0 +1,6 @@
+Build trigger for GitHub Actions.
+
+Purpose: harmless text-only commit to trigger the Build APK workflow on main.
+Triggered by: ChatGPT total-engineer review.
+Timestamp: 2026-06-12T00:00:00-07:00
+Target validation: commit 5fe5308495629480afcea074b0d09e1dd1965800 compass upgrade.
