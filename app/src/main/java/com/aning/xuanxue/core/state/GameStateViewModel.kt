@@ -39,6 +39,9 @@ class GameStateViewModel(app: Application) : AndroidViewModel(app) {
         .map { it == _today }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val isDailyLingqiAvailable: Boolean
+        get() = !todayCheckedIn.value
+
     // ─── 新手引导 ────────────────────────────────────
     val onboardingDone: StateFlow<Boolean> = store.onboardingDoneFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
