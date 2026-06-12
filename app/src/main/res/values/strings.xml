@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">玄机阁</string>
+    <string name="app_name">最后一个道士</string>
+    <string name="app_subtitle">道法自然 · 伏魔除妖 · 三界护法</string>
+    <string name="realm_mortal">凡人</string>
+    <string name="realm_qi">练气期</string>
+    <string name="realm_foundation">筑基期</string>
+    <string name="realm_core">金丹期</string>
+    <string name="realm_nascent">元婴期</string>
+    <string name="realm_immortal">真仙</string>
 </resources>
