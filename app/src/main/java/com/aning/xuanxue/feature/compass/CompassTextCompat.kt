@@ -1,6 +1,6 @@
 package com.aning.xuanxue.feature.compass
 
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +22,7 @@ internal fun CompassText(
     lineHeight: TextUnit = TextUnit.Unspecified,
     textAlign: TextAlign? = null
 ) {
-    Text(
+    MaterialText(
         text = text,
         modifier = modifier,
         color = color,
