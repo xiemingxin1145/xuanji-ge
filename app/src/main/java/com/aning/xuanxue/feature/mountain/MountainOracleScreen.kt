@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,9 +36,12 @@ fun MountainOracleScreen(
     onBack: () -> Unit,
     onOpenFlyingStar: () -> Unit
 ) {
+    val context = LocalContext.current
+    val assetRows = remember { MountainAssetLoader.load(context) }
+    val source = remember(assetRows) { mergeRows(assetRows, MountainOracleRepository.all) }
     var query by remember { mutableStateOf("") }
     var selected by remember { mutableStateOf<MountainOracle?>(null) }
-    val list = remember(query) { MountainOracleRepository.search(query) }
+    val list = remember(query, source) { searchRows(source, query) }
 
     XScaffold(title = "二十四山向断语", onBack = onBack) { padding ->
         ScrollColumn(padding) {
@@ -45,7 +49,7 @@ fun MountainOracleScreen(
                 SectionTitle("二十四山向索引")
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "列山、向、度数、卦宫、元龙、玄空阴阳与实务检查项。断语只列规则，不替专业使用者下最终结论。",
+                    "列山、向、度数、卦宫、元龙、玄空阴阳与实务检查项。数据 ${assetRows.size}/${source.size} 条。",
                     color = TextSub,
                     fontSize = 13.sp,
                     lineHeight = 19.sp
@@ -77,7 +81,7 @@ fun MountainOracleScreen(
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    MountainOracleRepository.all.forEach { item ->
+                    source.forEach { item ->
                         Button(
                             onClick = { selected = item },
                             colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
@@ -149,5 +153,22 @@ fun MountainOracleScreen(
                 }
             }
         }
+    }
+}
+
+private fun mergeRows(primary: List<MountainOracle>, fallback: List<MountainOracle>): List<MountainOracle> {
+    val map = linkedMapOf<String, MountainOracle>()
+    fallback.forEach { map[it.mountain] = it }
+    primary.forEach { map[it.mountain] = it }
+    return map.values.toList()
+}
+
+private fun searchRows(rows: List<MountainOracle>, keyword: String): List<MountainOracle> {
+    val q = keyword.trim()
+    if (q.isEmpty()) return rows
+    return rows.filter {
+        it.mountain.contains(q) || it.facing.contains(q) || it.palace.contains(q) ||
+            it.yuanLong.contains(q) || it.elementHint.contains(q) || it.usage.contains(q) ||
+            it.cautions.any { c -> c.contains(q) }
     }
 }
