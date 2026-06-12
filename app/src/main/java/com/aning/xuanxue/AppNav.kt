@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aning.xuanxue.core.sound.XuanSound
 import com.aning.xuanxue.feature.ai.AiChatScreen
 import com.aning.xuanxue.feature.ai.AiSettingsScreen
 import com.aning.xuanxue.feature.ai.PendingAiPromptStore
@@ -170,6 +172,7 @@ private data class Entry(
 
 @Composable
 fun HomeScreen(go: (String) -> Unit) {
+    val context = LocalContext.current
     val entries = listOf(
         Entry("status", "新版功能清单", "${AppVersion.DISPLAY}", Icons.Filled.Verified),
         Entry("update", "检查更新", "APP 内打开最新版安装包", Icons.Filled.Verified),
@@ -199,12 +202,18 @@ fun HomeScreen(go: (String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(8.dp))
-            CentralXuanVisual(onClick = { go("guide") })
+            CentralXuanVisual(onClick = {
+                XuanSound.play(context, XuanSound.Effect.Open)
+                go("guide")
+            })
             TodayHeader()
             entries.chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     row.forEach { entry ->
-                        GridCard(entry, Modifier.weight(1f)) { go(entry.route) }
+                        GridCard(entry, Modifier.weight(1f)) {
+                            XuanSound.play(context, XuanSound.Effect.Click)
+                            go(entry.route)
+                        }
                     }
                     if (row.size == 1) Spacer(Modifier.weight(1f))
                 }
@@ -231,6 +240,12 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
         animationSpec = infiniteRepeatable(tween(32000, easing = LinearEasing), RepeatMode.Restart),
         label = "homeRot"
     )
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 0.18f,
+        targetValue = 0.42f,
+        animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing), RepeatMode.Reverse),
+        label = "homePulse"
+    )
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -239,7 +254,7 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         color = InkSurface,
-        border = BorderStroke(1.dp, Gold.copy(alpha = 0.35f))
+        border = BorderStroke(1.dp, Gold.copy(alpha = pulse))
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize().padding(24.dp)) {
@@ -247,12 +262,12 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
                 val cy = size.height / 2f
                 val r = min(cx, cy) * 0.82f
                 rotate(rotation, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                    drawCircle(Gold.copy(alpha = 0.16f), radius = r)
+                    drawCircle(Gold.copy(alpha = 0.16f + pulse * 0.12f), radius = r)
                     drawCircle(Gold.copy(alpha = 0.12f), radius = r * 0.72f)
-                    drawCircle(Cinnabar.copy(alpha = 0.08f), radius = r * 0.42f)
+                    drawCircle(Cinnabar.copy(alpha = 0.08f + pulse * 0.08f), radius = r * 0.42f)
                     for (i in 0 until 8) {
                         rotate(i * 45f, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                            drawCircle(Gold.copy(alpha = 0.08f), radius = r * 0.04f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.82f))
+                            drawCircle(Gold.copy(alpha = 0.08f + pulse * 0.1f), radius = r * 0.04f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.82f))
                         }
                     }
                 }
@@ -307,6 +322,13 @@ private fun TodayHeader() {
 
 @Composable
 private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "gridGlow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.18f,
+        targetValue = 0.46f,
+        animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing), RepeatMode.Reverse),
+        label = "gridGlowAlpha"
+    )
     Surface(
         modifier = modifier
             .height(132.dp)
@@ -318,7 +340,8 @@ private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .border(1.dp, Gold.copy(alpha = 0.25f), RoundedCornerShape(18.dp))
+                .background(Brush.verticalGradient(listOf(InkSurface, Gold.copy(alpha = glowAlpha * 0.12f), InkSurface)))
+                .border(1.dp, Gold.copy(alpha = glowAlpha), RoundedCornerShape(18.dp))
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -326,7 +349,7 @@ private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Brush.verticalGradient(listOf(Gold.copy(alpha = 0.25f), Gold.copy(alpha = 0.08f)))),
+                    .background(Brush.verticalGradient(listOf(Gold.copy(alpha = 0.28f + glowAlpha * 0.1f), Gold.copy(alpha = 0.08f)))),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(entry.icon, contentDescription = entry.title, tint = GoldBright)
