@@ -169,7 +169,7 @@ private data class Entry(
 @Composable
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
-        Entry("status", "新版功能清单", "确认最新版 · 测试重点", Icons.Filled.Verified),
+        Entry("status", "新版功能清单", "${AppVersion.DISPLAY}", Icons.Filled.Verified),
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("seal", "我的印记", "五行印 · 八卦印 · 今日档案", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
@@ -183,7 +183,7 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
         Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
-        Entry("ai", "AI 玄师", "可插拔大模型 · 解卦问事", Icons.Filled.AutoAwesome)
+        Entry("ai", "问玄师", "联网接入 · 解卦问事", Icons.Filled.AutoAwesome)
     )
 
     XScaffold(title = "玄机阁") { padding ->
@@ -208,7 +208,7 @@ fun HomeScreen(go: (String) -> Unit) {
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                "传统文化娱乐参考 · 现实建议优先",
+                "${AppVersion.DISPLAY} · 传统文化娱乐参考 · 现实建议优先",
                 color = TextSub,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -257,7 +257,7 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("今日问玄", color = GoldBright, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Text("先问所求 · 再入工具 · 最后问 AI", color = TextSub, fontSize = 12.sp)
+                Text("先问所求 · 再入工具 · 最后问玄师", color = TextSub, fontSize = 12.sp)
             }
         }
     }
