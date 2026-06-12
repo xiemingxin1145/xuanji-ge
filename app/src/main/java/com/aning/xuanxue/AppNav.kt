@@ -38,6 +38,7 @@ import com.aning.xuanxue.feature.bazi.BaziScreen
 import com.aning.xuanxue.feature.compass.CompassScreen
 import com.aning.xuanxue.feature.guide.GuideScreen
 import com.aning.xuanxue.feature.iching.IChingScreen
+import com.aning.xuanxue.feature.knowledge.KnowledgeScreen
 import com.aning.xuanxue.feature.name.NameScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
@@ -59,6 +60,12 @@ fun AppNav() {
         composable("home") { HomeScreen(nav::navigate) }
         composable("guide") {
             GuideScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
+        composable("knowledge") {
+            KnowledgeScreen(
                 onBack = { nav.popBackStack() },
                 onAiPrompt = ::openAiWithPrompt
             )
@@ -203,10 +210,11 @@ private data class Entry(
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
+        Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
         Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("bazi", "八字排盘", "四柱 · 五行 · 十神", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
-        Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.MenuBook),
+        Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
         Entry("ai", "AI 玄师", "可插拔大模型 · 解卦问事", Icons.Filled.AutoAwesome),
     )
