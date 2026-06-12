@@ -51,6 +51,7 @@ import com.aning.xuanxue.feature.knowledge.KnowledgeScreen
 import com.aning.xuanxue.feature.mountain.MountainOracleScreen
 import com.aning.xuanxue.feature.name.NameScreen
 import com.aning.xuanxue.feature.seal.SealScreen
+import com.aning.xuanxue.feature.status.FeatureStatusScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
 import com.aning.xuanxue.ui.*
@@ -75,6 +76,7 @@ fun AppNav() {
             }
         }
         composable("home") { HomeScreen(nav::navigate) }
+        composable("status") { FeatureStatusScreen(onBack = { nav.popBackStack() }) }
         composable("guide") { GuideScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("seal") { SealScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("knowledge") { KnowledgeScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
@@ -167,6 +169,7 @@ private data class Entry(
 @Composable
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
+        Entry("status", "新版功能清单", "确认最新版 · 测试重点", Icons.Filled.Verified),
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("seal", "我的印记", "五行印 · 八卦印 · 今日档案", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
@@ -176,7 +179,7 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("flyingstar", "玄空飞星", "三元九运 · 飞星排盘", Icons.Filled.Apps),
         Entry("mountain", "二十四山向", "坐山向首 · 元龙断法", Icons.Filled.Explore),
-        Entry("bazi", "八字排盘", "四柱 · 五行 · 十神", Icons.Filled.GridView),
+        Entry("bazi", "八字排盘", "四柱 · 神煞 · 大运流年", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
         Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
