@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aning.xuanxue.AppVersion
 import com.aning.xuanxue.ui.Cinnabar
 import com.aning.xuanxue.ui.GoldBright
 import com.aning.xuanxue.ui.Jade
@@ -22,12 +23,22 @@ fun FeatureStatusScreen(onBack: () -> Unit) {
     XScaffold(title = "新版功能清单", onBack = onBack) { padding ->
         ScrollColumn(padding) {
             XCard(Modifier.fillMaxWidth()) {
-                SectionTitle("玄机阁测试版 · 2026-06-12 晚间增强版")
+                SectionTitle(AppVersion.DISPLAY)
                 Spacer(Modifier.height(8.dp))
-                Text("如果你能看到这个页面，说明你装的是新包，不是旧包。", color = Jade, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("如果你能看到这个页面，说明你装的是 v${AppVersion.VERSION_NAME} 新包，不是旧包。", color = Jade, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Text("本页用于测试核对：看功能是否真正进入 APK。", color = TextSub, fontSize = 12.sp)
+                Text("本页用于测试核对：看功能是否真正进入 APK。版本号每次更新都会递增。", color = TextSub, fontSize = 12.sp)
             }
+
+            StatusBlock(
+                title = "版本规则",
+                items = listOf(
+                    "当前版本：v${AppVersion.VERSION_NAME} / versionCode ${AppVersion.VERSION_CODE}",
+                    "小功能更新：v1.2 → v1.3 → v1.4",
+                    "大版本升级：视觉、音效、联网问玄体系完成后进入 v2.0",
+                    "每次发测试包，先看这里的版本号，避免误装旧包"
+                )
+            )
 
             StatusBlock(
                 title = "风水专业线",
@@ -57,18 +68,18 @@ fun FeatureStatusScreen(onBack: () -> Unit) {
                 items = listOf(
                     "我的印记：五行印、八卦印、今日档案",
                     "今日符卡：抽卡、行动提醒、护身笔记",
-                    "梦境记录：梦境内容、情绪、关键词、问 AI",
+                    "梦境记录：梦境内容、情绪、关键词、问玄师",
                     "五行养生：日课、呼吸、情绪调节"
                 )
             )
 
             StatusBlock(
-                title = "AI 玄师线",
+                title = "问玄师 AI 线",
                 items = listOf(
                     "可插拔大模型 Key",
                     "多模块 Prompt 预填",
-                    "资料库、梦境、符卡、养生日课可一键问 AI",
-                    "后续目标：罗盘、飞星、八字、二十四山全部生成结构化 AI 问法"
+                    "资料库、梦境、符卡、养生日课可一键问玄师",
+                    "后续目标：罗盘、飞星、八字、二十四山全部生成结构化问玄师问法"
                 )
             )
 
@@ -77,9 +88,9 @@ fun FeatureStatusScreen(onBack: () -> Unit) {
                 items = listOf(
                     "APP 图标：玄黑、暗金、朱砂、罗盘印章风格",
                     "首页主视觉：太极、八卦、星轨、金线微动",
-                    "AI 玄师形象：东方玄师立绘入口",
+                    "问玄师形象：东方玄师立绘入口",
                     "模块头图：罗盘、飞星、八字、黄历、梦境、符卡",
-                    "音效位：启动音、点击音、切换音、抽符音、计算完成音、警示音、罗盘轻响、AI 回复提示"
+                    "音效位：启动音、点击音、切换音、抽符音、计算完成音、警示音、罗盘轻响、问玄师回复提示"
                 )
             )
 
@@ -87,11 +98,12 @@ fun FeatureStatusScreen(onBack: () -> Unit) {
                 Text("测试重点", color = GoldBright, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
                 Text("1. 首页是否出现『新版功能清单』。", color = TextMain, fontSize = 13.sp)
-                Text("2. 首页是否有『玄空飞星』和『二十四山向』。", color = TextMain, fontSize = 13.sp)
-                Text("3. 八字排盘后是否出现神煞、大运、流年。", color = TextMain, fontSize = 13.sp)
-                Text("4. 二十四山向页是否显示数据条数。", color = TextMain, fontSize = 13.sp)
+                Text("2. 本页是否显示『${AppVersion.DISPLAY}』。", color = TextMain, fontSize = 13.sp)
+                Text("3. 首页是否有『玄空飞星』和『二十四山向』。", color = TextMain, fontSize = 13.sp)
+                Text("4. 八字排盘后是否出现神煞、大运、流年。", color = TextMain, fontSize = 13.sp)
+                Text("5. 二十四山向页是否显示数据条数。", color = TextMain, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("看不到这些，就说明仍然装的是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("看不到版本号或功能清单，就说明仍然装的是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
