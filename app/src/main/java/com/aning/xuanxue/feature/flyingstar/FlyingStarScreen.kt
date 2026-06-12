@@ -33,6 +33,13 @@ private fun starColor(star: Int, yun: Int): Color = when {
     else -> TextMain
 }
 
+private fun timeStarColor(star: Int): Color = when (star) {
+    5, 2 -> Cinnabar
+    9 -> GoldBright
+    8, 1 -> Jade
+    else -> TextMain
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlyingStarScreen(onBack: () -> Unit) {
@@ -47,6 +54,7 @@ fun FlyingStarScreen(onBack: () -> Unit) {
         FlyingStarCalculator.compute(yun, sittingName, useReplacement)
     }
     val yunInfo = remember(yun) { YUN_LIST.first { it.num == yun } }
+    val timeStars = remember { FlyingStarTimeCalculator.current() }
 
     XScaffold(title = "玄空飞星 · 三元理气", onBack = onBack) { padding ->
         ScrollColumn(padding) {
@@ -129,6 +137,19 @@ fun FlyingStarScreen(onBack: () -> Unit) {
                 }
             }
 
+            // ---- 流年流月 ----
+            XCard(Modifier.fillMaxWidth()) {
+                SectionTitle("流年 / 流月紫白叠加")
+                Spacer(Modifier.height(8.dp))
+                KV("流年", "${timeStars.year} ${timeStars.yearBranch}年 · ${FlyingStarTimeCalculator.starBrief(timeStars.annualCenter)}入中", valueColor = timeStarColor(timeStars.annualCenter))
+                KV("流月", "${timeStars.month}月 · ${FlyingStarTimeCalculator.starBrief(timeStars.monthCenter)}入中", valueColor = timeStarColor(timeStars.monthCenter))
+                Spacer(Modifier.height(4.dp))
+                Text(timeStars.annualNote, color = TextSub, fontSize = 11.sp, lineHeight = 16.sp)
+                Text(timeStars.monthNote, color = TextSub, fontSize = 11.sp, lineHeight = 16.sp)
+                Spacer(Modifier.height(6.dp))
+                Text("盘内角标：左下为流年星，右下为流月星。", color = GoldBright, fontSize = 12.sp)
+            }
+
             // ---- 九宫盘 ----
             SectionTitle("九宫飞星盘（上南下北）")
             val cells = result.palaceStars()
@@ -140,6 +161,8 @@ fun FlyingStarScreen(onBack: () -> Unit) {
                             PalaceCell(
                                 ps = cells[grid],
                                 yun = yun,
+                                annualStar = timeStars.annualPlate[grid],
+                                monthStar = timeStars.monthPlate[grid],
                                 isSit = grid == result.sittingGrid,
                                 isFace = grid == result.facingGrid,
                                 modifier = Modifier.weight(1f),
@@ -154,7 +177,7 @@ fun FlyingStarScreen(onBack: () -> Unit) {
             XCard(Modifier.fillMaxWidth()) {
                 Text("读盘", color = GoldBright, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(4.dp))
-                Text("每宫左上为山星（管人丁），右上为向星（管财禄），下中为运星（地盘）。", color = TextSub, fontSize = 12.sp)
+                Text("每宫左上为山星（管人丁），右上为向星（管财禄），下中为运星（地盘），下方角标叠流年/流月。", color = TextSub, fontSize = 12.sp)
                 Spacer(Modifier.height(2.dp))
                 Row {
                     Text("旺星", color = GoldBright, fontSize = 12.sp); Text("／", color = TextSub, fontSize = 12.sp)
@@ -168,7 +191,12 @@ fun FlyingStarScreen(onBack: () -> Unit) {
     }
 
     sheetGrid?.let { grid ->
-        PalaceSheet(ps = result.palaceStars()[grid], yun = yun) { sheetGrid = null }
+        PalaceSheet(
+            ps = result.palaceStars()[grid],
+            yun = yun,
+            annualStar = timeStars.annualPlate[grid],
+            monthStar = timeStars.monthPlate[grid]
+        ) { sheetGrid = null }
     }
 }
 
@@ -176,6 +204,8 @@ fun FlyingStarScreen(onBack: () -> Unit) {
 private fun PalaceCell(
     ps: PalaceStars,
     yun: Int,
+    annualStar: Int,
+    monthStar: Int,
     isSit: Boolean,
     isFace: Boolean,
     modifier: Modifier,
@@ -204,23 +234,41 @@ private fun PalaceCell(
             modifier = Modifier.align(Alignment.TopCenter)
         )
         // 山星左、向星右
-        Row(Modifier.align(Alignment.Center).padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.align(Alignment.Center).padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("${ps.shan}", color = starColor(ps.shan, yun), fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text("${ps.xiang}", color = starColor(ps.xiang, yun), fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
-        // 运星下中
+        // 运星下中 + 年月角标
         Text(
-            "${ps.yun}",
+            "运${ps.yun}",
             color = TextSub,
-            fontSize = 13.sp,
+            fontSize = 11.sp,
             modifier = Modifier.align(Alignment.BottomCenter)
+        )
+        Text(
+            "年$annualStar",
+            color = timeStarColor(annualStar),
+            fontSize = 10.sp,
+            modifier = Modifier.align(Alignment.BottomStart)
+        )
+        Text(
+            "月$monthStar",
+            color = timeStarColor(monthStar),
+            fontSize = 10.sp,
+            modifier = Modifier.align(Alignment.BottomEnd)
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PalaceSheet(ps: PalaceStars, yun: Int, onDismiss: () -> Unit) {
+private fun PalaceSheet(
+    ps: PalaceStars,
+    yun: Int,
+    annualStar: Int,
+    monthStar: Int,
+    onDismiss: () -> Unit
+) {
     val combo = comboOf(ps.shan, ps.xiang)
     val gua = guaOf(ps.shan, ps.xiang)
     val shanInfo = STARS[ps.shan]
@@ -242,6 +290,17 @@ private fun PalaceSheet(ps: PalaceStars, yun: Int, onDismiss: () -> Unit) {
             KV("向星", "${ps.xiang} ${xiangInfo?.name ?: ""}（${starPhase(ps.xiang, yun)}）", valueColor = starColor(ps.xiang, yun))
             xiangInfo?.let { KV("　", "旺：${it.wang}") ; KV("　", "衰：${it.shuai}") }
             KV("运星", "${ps.yun}（地盘）")
+
+            Spacer(Modifier.height(10.dp))
+            XCard(Modifier.fillMaxWidth()) {
+                Text("流年 / 流月", color = GoldBright, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(6.dp))
+                KV("流年", FlyingStarTimeCalculator.starBrief(annualStar), valueColor = timeStarColor(annualStar))
+                Text(FlyingStarTimeCalculator.overlayWarning(annualStar), color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                Spacer(Modifier.height(5.dp))
+                KV("流月", FlyingStarTimeCalculator.starBrief(monthStar), valueColor = timeStarColor(monthStar))
+                Text(FlyingStarTimeCalculator.overlayWarning(monthStar), color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+            }
 
             Spacer(Modifier.height(10.dp))
             if (gua != null) {
