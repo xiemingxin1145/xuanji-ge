@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
@@ -21,7 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
@@ -120,7 +124,7 @@ fun SplashScreen(onFinish: () -> Unit) {
             Spacer(Modifier.height(32.dp))
 
             // 简化太极
-            TaijiSymbol(size = 92.dp, modifier = Modifier)
+            TaijiSymbol(symbolSize = 92.dp, modifier = Modifier)
 
             Spacer(Modifier.height(40.dp))
             Text(
@@ -133,7 +137,7 @@ fun SplashScreen(onFinish: () -> Unit) {
 }
 
 @Composable
-fun TaijiSymbol(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+fun TaijiSymbol(symbolSize: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "taiji")
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -144,9 +148,9 @@ fun TaijiSymbol(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier
         ), label = "taijiRot"
     )
 
-    Canvas(modifier.size(size)) {
-        val cx = size.width.toPx() / 2
-        val cy = size.height.toPx() / 2
+    Canvas(modifier.size(symbolSize)) {
+        val cx = this.size.width / 2
+        val cy = this.size.height / 2
         val r = min(cx, cy)
 
         rotate(degrees = rotation, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
@@ -182,7 +186,7 @@ private data class Entry(
     val route: String,
     val title: String,
     val sub: String,
-    val icon: androidx.compose.material.icons.Icons.Filled
+    val icon: ImageVector
 )
 
 @Composable
@@ -235,7 +239,7 @@ fun HomeScreen(go: (String) -> Unit) {
                 color = TextSub,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(24.dp))
         }
