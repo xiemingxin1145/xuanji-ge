@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -57,9 +58,13 @@ import com.aning.xuanxue.feature.status.FeatureStatusScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.feature.update.UpdateCenterScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
-import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
-// 零新增
+import com.aning.xuanxue.feature.xuanhuang.EarthVeinScreen
+import com.aning.xuanxue.feature.xuanhuang.FateGrowthScreen
+import com.aning.xuanxue.feature.xuanhuang.ShanhaiAtlasScreen
+import com.aning.xuanxue.feature.xuanhuang.XuanSuanVerifyScreen
+import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
+import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.delay
@@ -82,6 +87,14 @@ fun AppNav() {
             }
         }
         composable("home") { HomeScreen(nav::navigate) }
+
+        // V2.0 天地玄黄游戏化入口
+        composable("xuanhuang") { XuanhuangDashboardScreen(onBack = { nav.popBackStack() }, go = nav::navigate) }
+        composable("earth_vein") { EarthVeinScreen(onBack = { nav.popBackStack() }) }
+        composable("fate_growth") { FateGrowthScreen(onBack = { nav.popBackStack() }) }
+        composable("shanhai_atlas") { ShanhaiAtlasScreen(onBack = { nav.popBackStack() }) }
+        composable("xuan_verify") { XuanSuanVerifyScreen(onBack = { nav.popBackStack() }) }
+
         composable("status") { FeatureStatusScreen(onBack = { nav.popBackStack() }) }
         composable("update") { UpdateCenterScreen(onBack = { nav.popBackStack() }) }
         composable("guide") { GuideScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
@@ -105,8 +118,6 @@ fun AppNav() {
         composable("name") { NameScreen(onBack = { nav.popBackStack() }) }
         composable("ai") { AiChatScreen(onBack = { nav.popBackStack() }, onSettings = { nav.navigate("ai_settings") }) }
         composable("ai_settings") { AiSettingsScreen(onBack = { nav.popBackStack() }) }
-
-        // 零新增：玄机共鸣演示
         composable("xuanji_resonance_demo") { XuanjiResonanceDemoScreen(onBack = { nav.popBackStack() }) }
     }
 }
@@ -140,8 +151,8 @@ fun SplashScreen(onFinish: () -> Unit) {
             Text("XUAN JI GE", color = Gold.copy(alpha = 0.75f), fontSize = 14.sp, letterSpacing = 6.sp)
             Spacer(Modifier.height(32.dp))
             TaijiSymbol(symbolSize = 92.dp)
-            Spacer(Modifier.height(36.dp))
-            Text("一部手机 · 观天时 · 测地气 · 解人心", color = TextSub.copy(alpha = 0.7f), fontSize = 13.sp)
+            Spacer(Modifier.height(32.dp))
+            Text("天地玄黄 · 山海地脉 · 命格共鸣", color = TextSub.copy(alpha = 0.75f), fontSize = 13.sp)
         }
     }
 }
@@ -164,9 +175,10 @@ fun TaijiSymbol(symbolSize: androidx.compose.ui.unit.Dp, modifier: Modifier = Mo
         val r = min(cx, cy)
         rotate(rotation) {
             drawCircle(GoldBright, radius = r)
-            drawCircle(Ink, radius = r * 0.48f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.5f))
-            drawCircle(Cinnabar, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
-            drawCircle(Ink, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
+            drawCircle(Ink, radius = r * 0.48f, center = Offset(cx, cy - r * 0.5f))
+            drawCircle(GoldBright, radius = r * 0.48f, center = Offset(cx, cy + r * 0.5f))
+            drawCircle(Cinnabar, radius = r * 0.12f, center = Offset(cx, cy - r * 0.5f))
+            drawCircle(Ink, radius = r * 0.12f, center = Offset(cx, cy + r * 0.5f))
         }
     }
 }
@@ -175,13 +187,19 @@ private data class Entry(
     val route: String,
     val title: String,
     val sub: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val featured: Boolean = false
 )
 
 @Composable
 fun HomeScreen(go: (String) -> Unit) {
     val context = LocalContext.current
     val entries = listOf(
+        Entry("xuanhuang", "天地玄黄", "动态天盘 · 山川河流 · 星河地脉 · 游戏总入口", Icons.Filled.AutoAwesome, true),
+        Entry("earth_vein", "山海地脉", "山川河流 · 地脉发光 · 方位秘境", Icons.Filled.Explore, true),
+        Entry("fate_growth", "命格成长", "五行属性 · 玄气加成 · 轻游戏养成", Icons.Filled.Spa, true),
+        Entry("shanhai_atlas", "山海图鉴", "神兽 · 神祇 · 法器 · 插图收集", Icons.Filled.MenuBook, true),
+        Entry("xuan_verify", "玄算验真", "天时地利人和 · 自行验算", Icons.Filled.Verified, true),
         Entry("status", "新版功能清单", "${AppVersion.DISPLAY}", Icons.Filled.Verified),
         Entry("update", "检查更新", "APP 内打开最新版安装包", Icons.Filled.Verified),
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
@@ -191,15 +209,14 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("talisman", "今日符卡", "抽卡 · 印记 · 行动提醒", Icons.Filled.AutoAwesome),
         Entry("dream", "梦境记录", "解梦 · 情绪 · 民俗象意", Icons.Filled.NightsStay),
         Entry("wellness", "五行养生", "日课 · 呼吸 · 情绪调节", Icons.Filled.Spa),
-        Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
+        Entry("compass", "寻龙定脉", "风水罗盘 · 二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("flyingstar", "玄空飞星", "三元九运 · 飞星排盘", Icons.Filled.Apps),
         Entry("mountain", "二十四山向", "坐山向首 · 元龙断法", Icons.Filled.Explore),
-        Entry("bazi", "八字排盘", "四柱 · 神煞 · 大运流年", Icons.Filled.GridView),
+        Entry("bazi", "命格鉴定台", "四柱 · 神煞 · 大运流年", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
-        Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
+        Entry("almanac", "天时神谕", "老黄历 · 宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
-        Entry("ai", "问玄师", "联网接入 · 解卦问事", Icons.Filled.AutoAwesome),
-        // 零新增：玄机共鸣演示入口
+        Entry("ai", "师尊问道", "AI玄师 · 解卦问事 · 剧情推进", Icons.Filled.AutoAwesome),
         Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
     )
 
@@ -215,10 +232,12 @@ fun HomeScreen(go: (String) -> Unit) {
             Spacer(Modifier.height(8.dp))
             CentralXuanVisual(onClick = {
                 XuanSound.play(context, XuanSound.Effect.Open)
-                go("guide")
+                go("xuanhuang")
             })
             TodayHeader()
-            entries.chunked(2).forEach { row ->
+
+            SectionTitle("天地玄黄 V2.0")
+            entries.filter { it.featured }.chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     row.forEach { entry ->
                         GridCard(entry, Modifier.weight(1f)) {
@@ -229,9 +248,23 @@ fun HomeScreen(go: (String) -> Unit) {
                     if (row.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
+
+            SectionTitle("玄门工具与资料")
+            entries.filterNot { it.featured }.chunked(2).forEach { row ->
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    row.forEach { entry ->
+                        GridCard(entry, Modifier.weight(1f)) {
+                            XuanSound.play(context, XuanSound.Effect.Click)
+                            go(entry.route)
+                        }
+                    }
+                    if (row.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+
             Spacer(Modifier.height(12.dp))
             Text(
-                "${AppVersion.DISPLAY} · 传统文化娱乐参考 · 现实建议优先",
+                "${AppVersion.DISPLAY} · 观天时 · 测地脉 · 演命格 · 入山海",
                 color = TextSub,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -248,45 +281,64 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(32000, easing = LinearEasing), RepeatMode.Restart),
+        animationSpec = infiniteRepeatable(tween(42000, easing = LinearEasing), RepeatMode.Restart),
         label = "homeRot"
     )
     val pulse by infiniteTransition.animateFloat(
-        initialValue = 0.18f,
-        targetValue = 0.42f,
-        animationSpec = infiniteRepeatable(tween(2200, easing = LinearEasing), RepeatMode.Reverse),
+        initialValue = 0.16f,
+        targetValue = 0.52f,
+        animationSpec = infiniteRepeatable(tween(2400, easing = LinearEasing), RepeatMode.Reverse),
         label = "homePulse"
     )
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1.05f)
-            .clip(RoundedCornerShape(24.dp))
+            .height(300.dp)
+            .clip(RoundedCornerShape(28.dp))
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         color = InkSurface,
         border = BorderStroke(1.dp, Gold.copy(alpha = pulse))
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.fillMaxSize().padding(24.dp)) {
+            Canvas(Modifier.fillMaxSize().padding(18.dp)) {
                 val cx = size.width / 2f
-                val cy = size.height / 2f
-                val r = min(cx, cy) * 0.82f
-                rotate(rotation, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                    drawCircle(Gold.copy(alpha = 0.16f + pulse * 0.12f), radius = r)
-                    drawCircle(Gold.copy(alpha = 0.12f), radius = r * 0.72f)
-                    drawCircle(Cinnabar.copy(alpha = 0.08f + pulse * 0.08f), radius = r * 0.42f)
-                    for (i in 0 until 8) {
-                        rotate(i * 45f, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                            drawCircle(Gold.copy(alpha = 0.08f + pulse * 0.1f), radius = r * 0.04f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.82f))
+                val cy = size.height * 0.42f
+                val r = min(size.width, size.height) * 0.38f
+                drawRect(Brush.verticalGradient(listOf(androidx.compose.ui.graphics.Color(0xFF050712), Ink, InkSurface)))
+                rotate(rotation, pivot = Offset(cx, cy)) {
+                    drawCircle(Gold.copy(alpha = 0.10f + pulse * 0.12f), radius = r * 1.38f, center = Offset(cx, cy))
+                    drawCircle(Gold.copy(alpha = 0.13f), radius = r, center = Offset(cx, cy))
+                    drawCircle(Cinnabar.copy(alpha = 0.08f + pulse * 0.08f), radius = r * 0.54f, center = Offset(cx, cy))
+                    for (i in 0 until 12) {
+                        rotate(i * 30f, pivot = Offset(cx, cy)) {
+                            drawCircle(GoldBright.copy(alpha = 0.38f + pulse * 0.4f), radius = 3.8f, center = Offset(cx, cy - r * 1.08f))
                         }
                     }
                 }
+                val mountainY = size.height * 0.76f
+                repeat(6) { i ->
+                    val x = size.width * i / 5f
+                    drawLine(Gold.copy(alpha = 0.18f), Offset(x - 70f, mountainY), Offset(x + 24f, mountainY - 58f - i % 2 * 18f), 4f)
+                    drawLine(Gold.copy(alpha = 0.12f), Offset(x + 24f, mountainY - 58f - i % 2 * 18f), Offset(x + 115f, mountainY + 4f), 4f)
+                }
+                repeat(3) { i ->
+                    drawLine(
+                        color = androidx.compose.ui.graphics.Color(0xFF4FC3F7).copy(alpha = 0.16f + pulse * 0.16f),
+                        start = Offset(0f, size.height * (0.78f + i * 0.055f)),
+                        end = Offset(size.width, size.height * (0.72f + i * 0.055f)),
+                        strokeWidth = 5f
+                    )
+                }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("今日问玄", color = GoldBright, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(6.dp))
-                Text("先问所求 · 再入工具 · 最后问玄师", color = TextSub, fontSize = 12.sp)
+                Text("天地玄黄", color = GoldBright, fontSize = 31.sp, fontWeight = FontWeight.Bold, letterSpacing = 5.sp)
+                Spacer(Modifier.height(8.dp))
+                Text("山川河流 · 宇宙星空 · 地脉共鸣", color = TextSub, fontSize = 12.sp)
+                Spacer(Modifier.height(18.dp))
+                Surface(shape = RoundedCornerShape(30.dp), color = Gold.copy(alpha = 0.14f), border = BorderStroke(1.dp, Gold.copy(alpha = 0.42f))) {
+                    Text("进入 V2.0 玄幻游戏化总入口", color = GoldBright, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp))
+                }
             }
         }
     }
@@ -335,14 +387,14 @@ private fun TodayHeader() {
 private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "gridGlow")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.18f,
-        targetValue = 0.46f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing), RepeatMode.Reverse),
+        initialValue = if (entry.featured) 0.28f else 0.16f,
+        targetValue = if (entry.featured) 0.62f else 0.38f,
+        animationSpec = infiniteRepeatable(tween(if (entry.featured) 1600 else 2200, easing = LinearEasing), RepeatMode.Reverse),
         label = "gridGlowAlpha"
     )
     Surface(
         modifier = modifier
-            .height(132.dp)
+            .height(if (entry.featured) 144.dp else 132.dp)
             .clip(RoundedCornerShape(18.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
@@ -351,7 +403,15 @@ private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(listOf(InkSurface, Gold.copy(alpha = glowAlpha * 0.12f), InkSurface)))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            InkSurface,
+                            if (entry.featured) Cinnabar.copy(alpha = glowAlpha * 0.10f) else Gold.copy(alpha = glowAlpha * 0.10f),
+                            InkSurface
+                        )
+                    )
+                )
                 .border(1.dp, Gold.copy(alpha = glowAlpha), RoundedCornerShape(18.dp))
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
@@ -368,7 +428,7 @@ private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
             Column {
                 Text(entry.title, color = TextMain, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(2.dp))
-                Text(entry.sub, color = TextSub, fontSize = 11.sp)
+                Text(entry.sub, color = TextSub, fontSize = 11.sp, lineHeight = 15.sp)
             }
         }
     }
