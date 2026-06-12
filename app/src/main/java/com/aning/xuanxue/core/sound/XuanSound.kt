@@ -7,7 +7,7 @@ import android.media.ToneGenerator
 /**
  * 玄机阁基础音效管理器。
  *
- * v1.5 先用系统 ToneGenerator 做轻量提示音，不依赖音频素材，避免缺资源导致构建失败。
+ * v1.6：支持本机开关保存；当前用系统 ToneGenerator 做轻量提示音，
  * 后续可替换为 SoundPool + res/raw 音效素材。
  */
 object XuanSound {
@@ -21,17 +21,31 @@ object XuanSound {
         AiReply
     }
 
-    private var enabled: Boolean = true
+    private const val PREFS = "xuan_sound_prefs"
+    private const val KEY_ENABLED = "sound_enabled"
+
+    private var memoryEnabled: Boolean = true
     private var tone: ToneGenerator? = null
 
-    fun setEnabled(value: Boolean) {
-        enabled = value
+    fun setEnabled(context: Context, value: Boolean) {
+        memoryEnabled = value
+        context.applicationContext
+            .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_ENABLED, value)
+            .apply()
     }
 
-    fun isEnabled(): Boolean = enabled
+    fun isEnabled(context: Context): Boolean {
+        val saved = context.applicationContext
+            .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_ENABLED, memoryEnabled)
+        memoryEnabled = saved
+        return saved
+    }
 
     fun play(context: Context, effect: Effect) {
-        if (!enabled) return
+        if (!isEnabled(context)) return
         try {
             val generator = tone ?: ToneGenerator(AudioManager.STREAM_MUSIC, 24).also { tone = it }
             val toneType = when (effect) {
