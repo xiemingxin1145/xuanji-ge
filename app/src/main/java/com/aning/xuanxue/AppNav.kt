@@ -67,6 +67,8 @@ import com.aning.xuanxue.feature.xuanhuang.XuanSuanVerifyScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanTaskScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
+import com.aning.xuanxue.feature.case_engine.CaseListScreen
+import com.aning.xuanxue.feature.case_engine.CasePlayScreen
 import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
@@ -125,6 +127,20 @@ fun AppNav() {
         composable("ai") { AiChatScreen(onBack = { nav.popBackStack() }, onSettings = { nav.navigate("ai_settings") }) }
         composable("ai_settings") { AiSettingsScreen(onBack = { nav.popBackStack() }) }
         composable("xuanji_resonance_demo") { XuanjiResonanceDemoScreen(onBack = { nav.popBackStack() }) }
+        composable("cases") {
+            CaseListScreen(
+                onBack = { nav.popBackStack() },
+                onEnterCase = { caseId -> nav.navigate("case_play/$caseId") }
+            )
+        }
+        composable("case_play/{caseId}") { backStack ->
+            val caseId = backStack.arguments?.getString("caseId") ?: return@composable
+            CasePlayScreen(
+                caseId = caseId,
+                onBack = { nav.popBackStack() },
+                onNavigateTool = { route -> nav.navigate(route) }
+            )
+        }
     }
 }
 
@@ -226,6 +242,7 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("almanac", "天时神谕", "老黄历 · 宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
         Entry("ai", "师尊问道", "AI玄师 · 解卦问事 · 剧情推进", Icons.Filled.AutoAwesome),
+        Entry("cases", "阴阳录·卷宗", "接案 · 调查 · 推演 · 玄机共鸣结案", Icons.Filled.Book, true),
         Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
     )
 
