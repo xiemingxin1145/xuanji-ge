@@ -67,7 +67,12 @@ import com.aning.xuanxue.feature.xuanhuang.XuanSuanVerifyScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanTaskScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.aning.xuanxue.core.state.GameStateViewModel
 import com.aning.xuanxue.feature.case_engine.CaseListScreen
+import com.aning.xuanxue.feature.daily.DailyQuestScreen
+import com.aning.xuanxue.feature.onboarding.OnboardingScreen
+import com.aning.xuanxue.feature.ar.ArScanScreen
 import com.aning.xuanxue.feature.ghost.GhostHuntScreen
 import com.aning.xuanxue.feature.ghost.GhostBestiaryScreen
 import com.aning.xuanxue.feature.cultivation.CultivationScreen
@@ -88,10 +93,16 @@ fun AppNav() {
         nav.navigate("ai")
     }
 
-    NavHost(navController = nav, startDestination = "splash") {
+    val gameVm: GameStateViewModel = viewModel()
+        val onboardingDone by gameVm.onboardingDone.collectAsStateWithLifecycle()
+        NavHost(navController = nav, startDestination = "splash") {
         composable("splash") {
             SplashScreen {
-                nav.navigate("home") { popUpTo("splash") { inclusive = true } }
+                if (onboardingDone) {
+                    nav.navigate("home") { popUpTo("splash") { inclusive = true } }
+                } else {
+                    nav.navigate("onboarding") { popUpTo("splash") { inclusive = true } }
+                }
             }
         }
         composable("home") { HomeScreen(nav::navigate) }
@@ -147,6 +158,25 @@ fun AppNav() {
         composable("ghost_hunt") { GhostHuntScreen(onBack = { nav.popBackStack() }) }
         composable("ghost_bestiary") { GhostBestiaryScreen(onBack = { nav.popBackStack() }) }
         composable("cultivation") { CultivationScreen(onBack = { nav.popBackStack() }) }
+        composable("daily") {
+            DailyQuestScreen(
+                viewModel = gameVm,
+                onBack = { nav.popBackStack() },
+                onNavigate = { route -> nav.navigate(route) }
+            )
+        }
+        composable("ar_scan") {
+            ArScanScreen(
+                onBack = { nav.popBackStack() },
+                onTrigger = { nodeId -> nav.navigate("cases") }
+            )
+        }
+        composable("onboarding") {
+            OnboardingScreen(onComplete = {
+                gameVm.setOnboardingDone()
+                nav.navigate("home") { popUpTo("onboarding") { inclusive = true } }
+            })
+        }
     }
 }
 
@@ -252,6 +282,8 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("ghost_hunt", "捉鬼行动", "感应鬼魂 · 封印镇压 · 收集鬼气", Icons.Filled.Visibility, true),
         Entry("ghost_bestiary", "鬼怪图鉴", "山海经 · 搜神记 · 民俗典故解说", Icons.Filled.MenuBook, true),
         Entry("cultivation", "道行修炼", "境界突破 · 五行属性 · 道法宝典", Icons.Filled.Spa, true),
+        Entry("daily", "每日修炼", "日常任务 · 领取灵气 · 修为汇总", Icons.Filled.CalendarToday, true),
+        Entry("ar_scan", "AR玄机感应", "现实扫描 · 地脉叠加 · 节点探秘", Icons.Filled.CameraAlt, true),
         Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
     )
 
