@@ -53,7 +53,7 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text("当前版本：v${AppVersion.VERSION_NAME} / ${AppVersion.VERSION_CODE}", color = GoldBright, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Text("这里是玄机阁测试版更新中心。以后所有测试包都从这里进入，不用每次在聊天里翻链接。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                Text("这里是玄机阁测试版更新中心。V2.0 开始加入天地玄黄、山海地脉、命格成长、山海图鉴和玄算验真。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
             }
 
             XCard(Modifier.fillMaxWidth()) {
@@ -77,13 +77,14 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
             }
 
             XCard(Modifier.fillMaxWidth()) {
-                SectionTitle("v1.8 玄奇志测试点")
+                SectionTitle("v2.0 天地玄黄测试点")
                 Spacer(Modifier.height(8.dp))
-                Text("· 首页是否出现『玄奇志』入口", color = TextMain, fontSize = 13.sp)
-                Text("· 玄奇志是否包含山海经图鉴、神怪志、玄幻设定库、民俗异闻库、道教神谱、奇门异术库", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
-                Text("· 点击栏目里的『问玄师』是否能带入栏目扩展提示词", color = TextMain, fontSize = 13.sp)
+                Text("· 首页是否出现『天地玄黄』动态总入口", color = TextMain, fontSize = 13.sp)
+                Text("· 是否出现『山海地脉』『命格成长』『山海图鉴』『玄算验真』四个 V2.0 入口", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 天地玄黄页是否有宇宙星空、山川河流、地脉光点和今日玄气值", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 玄算验真是否能显示天时、地利、人和、玄气总分的验算步骤", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("这个版本开始，玄机阁从工具型 APP 向东方玄奇资料宇宙扩展。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                Text("这个版本开始，玄机阁从工具型 APP 升级为玄学工具 + 神话世界观 + 轻游戏成长的二合一雏形。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
             }
 
             XCard(Modifier.fillMaxWidth()) {
@@ -131,9 +132,9 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 SectionTitle("更新判断")
                 Spacer(Modifier.height(8.dp))
                 Text("1. 首页是否显示 ${AppVersion.DISPLAY}", color = TextMain, fontSize = 13.sp)
-                Text("2. 是否有『检查更新』入口", color = TextMain, fontSize = 13.sp)
-                Text("3. 是否有『玄奇志』入口", color = TextMain, fontSize = 13.sp)
-                Text("4. 检查更新页是否有『v1.8 玄奇志测试点』", color = TextMain, fontSize = 13.sp)
+                Text("2. 是否有『天地玄黄』入口", color = TextMain, fontSize = 13.sp)
+                Text("3. 是否有『山海地脉』『命格成长』『山海图鉴』『玄算验真』", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("4. 检查更新页是否有『v2.0 天地玄黄测试点』", color = TextMain, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("看不到这些，就是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
