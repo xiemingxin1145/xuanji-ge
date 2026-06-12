@@ -53,7 +53,7 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text("当前版本：v${AppVersion.VERSION_NAME} / ${AppVersion.VERSION_CODE}", color = GoldBright, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Text("这里是玄机阁测试版更新中心。V2.0 开始加入天地玄黄、山海地脉、命格成长、山海图鉴和玄算验真。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                Text("V2.1 加入星宿天图、玄门任务和插图资源库，让天地玄黄从入口雏形继续升级为可长期运营的内容系统。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
             }
 
             XCard(Modifier.fillMaxWidth()) {
@@ -77,14 +77,14 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
             }
 
             XCard(Modifier.fillMaxWidth()) {
-                SectionTitle("v2.0 天地玄黄测试点")
+                SectionTitle("v2.1 星宿任务测试点")
                 Spacer(Modifier.height(8.dp))
-                Text("· 首页是否出现『天地玄黄』动态总入口", color = TextMain, fontSize = 13.sp)
-                Text("· 是否出现『山海地脉』『命格成长』『山海图鉴』『玄算验真』四个 V2.0 入口", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
-                Text("· 天地玄黄页是否有宇宙星空、山川河流、地脉光点和今日玄气值", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
-                Text("· 玄算验真是否能显示天时、地利、人和、玄气总分的验算步骤", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 首页是否出现『星宿天图』『玄门任务』『插图资源库』入口", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 星宿天图是否显示二十八宿动态星盘和今日值宿", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 玄门任务是否显示每日循环、奖励和后续存档说明", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 插图资源库是否显示首页、山海地图、星宿、师尊、神兽卡等提示词模板", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
                 Spacer(Modifier.height(8.dp))
-                Text("这个版本开始，玄机阁从工具型 APP 升级为玄学工具 + 神话世界观 + 轻游戏成长的二合一雏形。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                Text("这个版本开始，玄机阁不只是功能入口，而是具备每日玩法、内容生产和美术扩展管线。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
             }
 
             XCard(Modifier.fillMaxWidth()) {
@@ -132,9 +132,8 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 SectionTitle("更新判断")
                 Spacer(Modifier.height(8.dp))
                 Text("1. 首页是否显示 ${AppVersion.DISPLAY}", color = TextMain, fontSize = 13.sp)
-                Text("2. 是否有『天地玄黄』入口", color = TextMain, fontSize = 13.sp)
-                Text("3. 是否有『山海地脉』『命格成长』『山海图鉴』『玄算验真』", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
-                Text("4. 检查更新页是否有『v2.0 天地玄黄测试点』", color = TextMain, fontSize = 13.sp)
+                Text("2. 是否有『星宿天图』『玄门任务』『插图资源库』", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("3. 检查更新页是否有『v2.1 星宿任务测试点』", color = TextMain, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("看不到这些，就是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
