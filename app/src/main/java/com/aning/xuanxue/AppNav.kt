@@ -53,6 +53,7 @@ import com.aning.xuanxue.feature.name.NameScreen
 import com.aning.xuanxue.feature.seal.SealScreen
 import com.aning.xuanxue.feature.status.FeatureStatusScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
+import com.aning.xuanxue.feature.update.UpdateCenterScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
@@ -77,6 +78,7 @@ fun AppNav() {
         }
         composable("home") { HomeScreen(nav::navigate) }
         composable("status") { FeatureStatusScreen(onBack = { nav.popBackStack() }) }
+        composable("update") { UpdateCenterScreen(onBack = { nav.popBackStack() }) }
         composable("guide") { GuideScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("seal") { SealScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("knowledge") { KnowledgeScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
@@ -170,6 +172,7 @@ private data class Entry(
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
         Entry("status", "新版功能清单", "${AppVersion.DISPLAY}", Icons.Filled.Verified),
+        Entry("update", "检查更新", "APP 内打开最新版安装包", Icons.Filled.Verified),
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("seal", "我的印记", "五行印 · 八卦印 · 今日档案", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
