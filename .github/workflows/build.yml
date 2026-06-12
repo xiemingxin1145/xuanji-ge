@@ -5,6 +5,10 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,11 +29,29 @@ jobs:
         run: gradle wrapper --gradle-version 8.7
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+
+      - name: Report errors as issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: ${{ github.run_id }}"
+            echo '```'
+            grep -E "^e: |error:|Caused by|What went wrong|FAILURE" -A 3 build.log | head -120
+            echo '```'
+          } > err.md
+          gh issue create --repo "${{ github.repository }}" \
+            --title "Build failure #${{ github.run_id }}" \
+            --body-file err.md || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: xuanxue-debug-apk
+          name: xuanji-ge-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
