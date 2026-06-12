@@ -9,11 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aning.xuanxue.core.sound.XuanSound
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.EightChar
 import com.nlf.calendar.Solar
@@ -34,6 +36,7 @@ private fun zhiWu(c: Char) = when (c) {
 
 @Composable
 fun BaziScreen(onBack: () -> Unit) {
+    val context = LocalContext.current
     val now = remember { Calendar.getInstance() }
     var y by remember { mutableStateOf(now.get(Calendar.YEAR).toString()) }
     var mo by remember { mutableStateOf((now.get(Calendar.MONTH) + 1).toString()) }
@@ -57,12 +60,18 @@ fun BaziScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Button(
-                        onClick = { male = true },
+                        onClick = {
+                            XuanSound.play(context, XuanSound.Effect.Click)
+                            male = true
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = if (male) Gold else InkSurface2, contentColor = if (male) Ink else TextMain)
                     ) { Text("男命") }
                     Button(
-                        onClick = { male = false },
+                        onClick = {
+                            XuanSound.play(context, XuanSound.Effect.Click)
+                            male = false
+                        },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = if (!male) Gold else InkSurface2, contentColor = if (!male) Ink else TextMain)
                     ) { Text("女命") }
@@ -76,9 +85,11 @@ fun BaziScreen(onBack: () -> Unit) {
                                 y.toInt(), mo.toInt(), d.toInt(), h.toInt(), 0, 0
                             )
                             result = solar.lunar.eightChar
+                            XuanSound.play(context, XuanSound.Effect.Success)
                         } catch (e: Exception) {
                             err = "日期有误，请检查输入"
                             result = null
+                            XuanSound.play(context, XuanSound.Effect.Warning)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
