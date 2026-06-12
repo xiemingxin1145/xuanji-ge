@@ -43,12 +43,19 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(AiStore.load(ctx)) }
     var input by remember { mutableStateOf("") }
+    var importedPrompt by remember { mutableStateOf<String?>(null) }
     var loading by remember { mutableStateOf(false) }
     val msgs = remember { mutableStateListOf<ChatMsg>() }
     val listState = rememberLazyListState()
 
-    // 回到此页时刷新配置（从设置页返回）
-    LaunchedEffect(Unit) { config = AiStore.load(ctx) }
+    // 回到此页时刷新配置；如果业务模块传入了上下文，则预填输入框，不自动发送，避免误扣 API 费用。
+    LaunchedEffect(Unit) {
+        config = AiStore.load(ctx)
+        PendingAiPromptStore.consume()?.let { prompt ->
+            importedPrompt = prompt
+            input = prompt
+        }
+    }
 
     fun send(text: String) {
         if (text.isBlank() || loading) return
@@ -96,6 +103,21 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             )
+
+            importedPrompt?.let { prompt ->
+                XCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    Text("已带入业务模块上下文", color = GoldBright, fontSize = 14.sp)
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        if (config.isReady) "内容已预填到输入框，确认后点击发送。" else "请先接入 API Key，接入后可直接发送这份解读上下文。",
+                        color = TextSub,
+                        fontSize = 12.sp
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(prompt.take(180) + if (prompt.length > 180) "…" else "", color = TextSub, fontSize = 11.sp)
+                }
+                Spacer(Modifier.height(8.dp))
+            }
 
             if (!config.isReady) {
                 XCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
