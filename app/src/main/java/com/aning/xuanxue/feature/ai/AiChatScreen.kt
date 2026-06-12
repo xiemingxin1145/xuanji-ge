@@ -1,5 +1,6 @@
 package com.aning.xuanxue.feature.ai
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,8 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aning.xuanxue.R
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.launch
@@ -84,8 +88,17 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            AiMasterHeader(
+                modelName = config.model.ifBlank { "未接入" },
+                isReady = config.isReady,
+                onSettings = onSettings,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+
             if (!config.isReady) {
-                XCard(Modifier.fillMaxWidth().padding(16.dp)) {
+                XCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                     Text("尚未接入大模型。", color = TextMain, fontSize = 14.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -162,6 +175,49 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                     enabled = config.isReady && !loading && input.isNotBlank(),
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = Gold, contentColor = Ink)
                 ) { Icon(Icons.AutoMirrored.Filled.Send, "发送") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AiMasterHeader(
+    modelName: String,
+    isReady: Boolean,
+    onSettings: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    XCard(modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(InkSurface2),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.img_ai_master),
+                    contentDescription = "AI玄师形象",
+                    modifier = Modifier.fillMaxSize().padding(6.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(Modifier.weight(1f)) {
+                Text("玄微子 · AI玄师", color = GoldBright, fontSize = 17.sp)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    if (isReady) "已接入模型：$modelName" else "未接入模型 · 请先配置 API Key",
+                    color = TextSub,
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text("传统文化参考 · 现实建议优先", color = TextSub.copy(alpha = 0.75f), fontSize = 11.sp)
+            }
+            TextButton(onClick = onSettings) {
+                Text(if (isReady) "切换" else "接入", color = Gold, fontSize = 12.sp)
             }
         }
     }
