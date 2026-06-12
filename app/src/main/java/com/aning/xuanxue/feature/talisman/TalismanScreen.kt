@@ -16,10 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aning.xuanxue.core.sound.XuanSound
 import com.aning.xuanxue.ui.Cinnabar
 import com.aning.xuanxue.ui.Gold
 import com.aning.xuanxue.ui.GoldBright
@@ -55,6 +57,7 @@ fun TalismanScreen(
     onBack: () -> Unit,
     onAiPrompt: (String) -> Unit
 ) {
+    val context = LocalContext.current
     var current by remember { mutableStateOf(cards[0]) }
 
     XScaffold(title = "今日符卡", onBack = onBack) { padding ->
@@ -109,15 +112,21 @@ fun TalismanScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(
-                    onClick = { current = cards[Random.nextInt(cards.size)] },
+                    onClick = {
+                        XuanSound.play(context, XuanSound.Effect.Draw)
+                        current = cards[Random.nextInt(cards.size)]
+                    },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
                 ) { Text("再抽一张") }
                 Button(
-                    onClick = { onAiPrompt(buildTalismanPrompt(current)) },
+                    onClick = {
+                        XuanSound.play(context, XuanSound.Effect.Open)
+                        onAiPrompt(buildTalismanPrompt(current))
+                    },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Cinnabar, contentColor = TextMain)
-                ) { Text("问 AI 玄师") }
+                ) { Text("问玄师") }
             }
 
             Text(
