@@ -36,10 +36,12 @@ import com.aning.xuanxue.feature.ai.PendingAiPromptStore
 import com.aning.xuanxue.feature.almanac.AlmanacScreen
 import com.aning.xuanxue.feature.bazi.BaziScreen
 import com.aning.xuanxue.feature.compass.CompassScreen
+import com.aning.xuanxue.feature.dream.DreamScreen
 import com.aning.xuanxue.feature.guide.GuideScreen
 import com.aning.xuanxue.feature.iching.IChingScreen
 import com.aning.xuanxue.feature.knowledge.KnowledgeScreen
 import com.aning.xuanxue.feature.name.NameScreen
+import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.delay
@@ -66,6 +68,18 @@ fun AppNav() {
         }
         composable("knowledge") {
             KnowledgeScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
+        composable("talisman") {
+            TalismanScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
+        composable("dream") {
+            DreamScreen(
                 onBack = { nav.popBackStack() },
                 onAiPrompt = ::openAiWithPrompt
             )
@@ -211,6 +225,8 @@ fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
+        Entry("talisman", "今日符卡", "抽卡 · 印记 · 行动提醒", Icons.Filled.AutoAwesome),
+        Entry("dream", "梦境记录", "解梦 · 情绪 · 民俗象意", Icons.Filled.NightsStay),
         Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("bazi", "八字排盘", "四柱 · 五行 · 十神", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
