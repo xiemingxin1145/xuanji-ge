@@ -68,6 +68,9 @@ import com.aning.xuanxue.feature.xuanhuang.XuanTaskScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
 import com.aning.xuanxue.feature.case_engine.CaseListScreen
+import com.aning.xuanxue.feature.ghost.GhostHuntScreen
+import com.aning.xuanxue.feature.ghost.GhostBestiaryScreen
+import com.aning.xuanxue.feature.cultivation.CultivationScreen
 import com.aning.xuanxue.feature.case_engine.CasePlayScreen
 import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
 import com.aning.xuanxue.ui.*
@@ -141,6 +144,9 @@ fun AppNav() {
                 onNavigateTool = { route -> nav.navigate(route) }
             )
         }
+        composable("ghost_hunt") { GhostHuntScreen(onBack = { nav.popBackStack() }) }
+        composable("ghost_bestiary") { GhostBestiaryScreen(onBack = { nav.popBackStack() }) }
+        composable("cultivation") { CultivationScreen(onBack = { nav.popBackStack() }) }
     }
 }
 
@@ -168,13 +174,13 @@ fun SplashScreen(onFinish: () -> Unit) {
             drawCircle(Cinnabar.copy(alpha = 0.06f), radius = r * 0.42f)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("玄机阁", color = Cinnabar, fontSize = 52.sp, fontWeight = FontWeight.Bold, letterSpacing = 8.sp)
+            Text("最后一个道士", color = Cinnabar, fontSize = 36.sp, fontWeight = FontWeight.Bold, letterSpacing = 4.sp)
             Spacer(Modifier.height(8.dp))
-            Text("XUAN JI GE", color = Gold.copy(alpha = 0.75f), fontSize = 14.sp, letterSpacing = 6.sp)
+            Text("THE LAST TAOIST", color = Gold.copy(alpha = 0.75f), fontSize = 13.sp, letterSpacing = 4.sp)
             Spacer(Modifier.height(32.dp))
             TaijiSymbol(symbolSize = 92.dp)
             Spacer(Modifier.height(32.dp))
-            Text("天地玄黄 · 山海地脉 · 星宿天图", color = TextSub.copy(alpha = 0.75f), fontSize = 13.sp)
+            Text("道法自然 · 伏魔除妖 · 三界护法", color = TextSub.copy(alpha = 0.75f), fontSize = 13.sp)
         }
     }
 }
@@ -243,10 +249,13 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
         Entry("ai", "师尊问道", "AI玄师 · 解卦问事 · 剧情推进", Icons.Filled.AutoAwesome),
         Entry("cases", "阴阳录·卷宗", "接案 · 调查 · 推演 · 玄机共鸣结案", Icons.Filled.Book, true),
+        Entry("ghost_hunt", "捉鬼行动", "感应鬼魂 · 封印镇压 · 收集鬼气", Icons.Filled.Visibility, true),
+        Entry("ghost_bestiary", "鬼怪图鉴", "山海经 · 搜神记 · 民俗典故解说", Icons.Filled.MenuBook, true),
+        Entry("cultivation", "道行修炼", "境界突破 · 五行属性 · 道法宝典", Icons.Filled.Spa, true),
         Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
     )
 
-    XScaffold(title = "玄机阁") { padding ->
+    XScaffold(title = "最后一个道士") { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
