@@ -29,7 +29,13 @@ val PRESETS = listOf(
 object AiStore {
     private const val FILE = "ai_config"
 
-    private fun prefs(ctx: Context): SharedPreferences = try {
+    private var secureAvailable: Boolean = true
+    private var memoryConfig: AiConfig? = null   // Keystore 失败时的会话内存存储
+
+    /** 安全存储是否可用（Keystore 正常） */
+    val isSecureAvailable: Boolean get() = secureAvailable
+
+    private fun prefs(ctx: Context): SharedPreferences? = try {
         val key = MasterKey.Builder(ctx)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
@@ -39,12 +45,15 @@ object AiStore {
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     } catch (e: Exception) {
-        // Keystore 异常时退回普通私有存储，保证可用
-        ctx.getSharedPreferences(FILE, Context.MODE_PRIVATE)
+        secureAvailable = false
+        null   // 不再静默降级到明文 SharedPreferences，保护用户 Key 安全
     }
 
     fun load(ctx: Context): AiConfig {
-        val p = prefs(ctx)
+        if (!secureAvailable) {
+            return memoryConfig ?: AiConfig()
+        }
+        val p = prefs(ctx) ?: return AiConfig()
         return AiConfig(
             baseUrl = p.getString("base_url", "") ?: "",
             apiKey = p.getString("api_key", "") ?: "",
@@ -53,7 +62,12 @@ object AiStore {
     }
 
     fun save(ctx: Context, c: AiConfig) {
-        prefs(ctx).edit()
+        if (!secureAvailable) {
+            memoryConfig = c   // 仅本次会话内存保存，不落盘到不安全存储
+            return
+        }
+        val p = prefs(ctx) ?: return
+        p.edit()
             .putString("base_url", c.baseUrl.trim().trimEnd('/'))
             .putString("api_key", c.apiKey.trim())
             .putString("model", c.model.trim())
@@ -61,6 +75,8 @@ object AiStore {
     }
 
     fun clear(ctx: Context) {
-        prefs(ctx).edit().clear().apply()
+        memoryConfig = null
+        if (!secureAvailable) return
+        prefs(ctx)?.edit()?.clear()?.apply()
     }
 }
