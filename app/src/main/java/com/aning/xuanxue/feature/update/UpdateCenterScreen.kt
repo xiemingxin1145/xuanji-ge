@@ -63,7 +63,7 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                     Column(Modifier.weight(1f)) {
                         Text(if (soundEnabled) "音效已开启" else "音效已关闭", color = if (soundEnabled) Jade else Cinnabar, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(4.dp))
-                        Text("控制启动、点击、问玄师回复、警示等基础音效。后续会替换为道铃、木鱼、罗盘轻响等真实素材。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+                        Text("控制启动、点击、问玄师回复、警示、抽符、排盘完成等基础音效。后续会替换为道铃、木鱼、罗盘轻响等真实素材。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
                     }
                     Switch(
                         checked = soundEnabled,
@@ -74,6 +74,18 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                         }
                     )
                 }
+            }
+
+            XCard(Modifier.fillMaxWidth()) {
+                SectionTitle("v1.7 音效测试点")
+                Spacer(Modifier.height(8.dp))
+                Text("· 启动 APP：开场轻提示音", color = TextMain, fontSize = 13.sp)
+                Text("· 首页入口：点击音", color = TextMain, fontSize = 13.sp)
+                Text("· 今日符卡：抽符音；问玄师跳转音", color = TextMain, fontSize = 13.sp)
+                Text("· 八字排盘：成功完成音；日期错误警示音", color = TextMain, fontSize = 13.sp)
+                Text("· 问玄师：发送音；回复音；请求失败警示音", color = TextMain, fontSize = 13.sp)
+                Spacer(Modifier.height(8.dp))
+                Text("当前为系统轻提示音，不依赖素材文件。真实道铃、木鱼、罗盘声会在后续素材包接入。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
             }
 
             XCard(Modifier.fillMaxWidth()) {
@@ -111,7 +123,7 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 Text("1. 首页是否显示 ${AppVersion.DISPLAY}", color = TextMain, fontSize = 13.sp)
                 Text("2. 是否有『检查更新』入口", color = TextMain, fontSize = 13.sp)
                 Text("3. 是否有『问玄师』入口", color = TextMain, fontSize = 13.sp)
-                Text("4. 检查更新页是否有『音效开关』", color = TextMain, fontSize = 13.sp)
+                Text("4. 检查更新页是否有『v1.7 音效测试点』", color = TextMain, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("看不到这些，就是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
