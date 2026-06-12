@@ -77,7 +77,17 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
             }
 
             XCard(Modifier.fillMaxWidth()) {
-                SectionTitle("v1.7 音效测试点")
+                SectionTitle("v1.8 玄奇志测试点")
+                Spacer(Modifier.height(8.dp))
+                Text("· 首页是否出现『玄奇志』入口", color = TextMain, fontSize = 13.sp)
+                Text("· 玄奇志是否包含山海经图鉴、神怪志、玄幻设定库、民俗异闻库、道教神谱、奇门异术库", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Text("· 点击栏目里的『问玄师』是否能带入栏目扩展提示词", color = TextMain, fontSize = 13.sp)
+                Spacer(Modifier.height(8.dp))
+                Text("这个版本开始，玄机阁从工具型 APP 向东方玄奇资料宇宙扩展。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+            }
+
+            XCard(Modifier.fillMaxWidth()) {
+                SectionTitle("音效测试点")
                 Spacer(Modifier.height(8.dp))
                 Text("· 启动 APP：开场轻提示音", color = TextMain, fontSize = 13.sp)
                 Text("· 首页入口：点击音", color = TextMain, fontSize = 13.sp)
@@ -122,8 +132,8 @@ fun UpdateCenterScreen(onBack: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
                 Text("1. 首页是否显示 ${AppVersion.DISPLAY}", color = TextMain, fontSize = 13.sp)
                 Text("2. 是否有『检查更新』入口", color = TextMain, fontSize = 13.sp)
-                Text("3. 是否有『问玄师』入口", color = TextMain, fontSize = 13.sp)
-                Text("4. 检查更新页是否有『v1.7 音效测试点』", color = TextMain, fontSize = 13.sp)
+                Text("3. 是否有『玄奇志』入口", color = TextMain, fontSize = 13.sp)
+                Text("4. 检查更新页是否有『v1.8 玄奇志测试点』", color = TextMain, fontSize = 13.sp)
                 Spacer(Modifier.height(8.dp))
                 Text("看不到这些，就是旧包。", color = Cinnabar, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
