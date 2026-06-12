@@ -77,6 +77,13 @@ import com.aning.xuanxue.feature.ar.ArScanScreen
 import com.aning.xuanxue.feature.ghost.GhostHuntScreen
 import com.aning.xuanxue.feature.ghost.GhostBestiaryScreen
 import com.aning.xuanxue.feature.cultivation.CultivationScreen
+import com.aning.xuanxue.feature.daily.DailyTaskScreen
+import com.aning.xuanxue.feature.onboarding.OnboardingScreen
+import com.aning.xuanxue.feature.ar.ARGhostScreen
+import com.aning.xuanxue.core.store.PlayerViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.aning.xuanxue.feature.case_engine.CasePlayScreen
 import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
 import com.aning.xuanxue.ui.*
@@ -159,6 +166,17 @@ fun AppNav() {
         composable("ghost_hunt") { GhostHuntScreen(onBack = { nav.popBackStack() }) }
         composable("ghost_bestiary") { GhostBestiaryScreen(onBack = { nav.popBackStack() }) }
         composable("cultivation") { CultivationScreen(onBack = { nav.popBackStack() }) }
+        composable("daily_tasks") {
+            DailyTaskScreen(onBack = { nav.popBackStack() }, onNavigate = { route -> nav.navigate(route) })
+        }
+        composable("ar_ghost") { ARGhostScreen(onBack = { nav.popBackStack() }) }
+        composable("onboarding") {
+            val playerVm: PlayerViewModel = viewModel()
+            OnboardingScreen(onDone = {
+                playerVm.onOnboardingDone()
+                nav.navigate("home") { popUpTo("onboarding") { inclusive = true } }
+            })
+        }
         composable("daily") {
             DailyQuestScreen(
                 viewModel = gameVm,
@@ -283,6 +301,8 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("ghost_hunt", "捉鬼行动", "感应鬼魂 · 封印镇压 · 收集鬼气", Icons.Filled.Visibility, true),
         Entry("ghost_bestiary", "鬼怪图鉴", "山海经 · 搜神记 · 民俗典故解说", Icons.Filled.MenuBook, true),
         Entry("cultivation", "道行修炼", "境界突破 · 五行属性 · 道法宝典", Icons.Filled.Spa, true),
+        Entry("daily_tasks", "每日修行", "签到 · 五项修炼任务 · 连日奖励", Icons.Filled.Today, true),
+        Entry("ar_ghost", "AR玄机探测", "现实叠加感应 · 鬼魂雷达 · 方位追踪", Icons.Filled.CameraAlt, true),
         Entry("daily", "每日修炼", "日常任务 · 领取灵气 · 修为汇总", Icons.Filled.CalendarToday, true),
         Entry("ar_scan", "AR玄机感应", "现实扫描 · 地脉叠加 · 节点探秘", Icons.Filled.CameraAlt, true),
         Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
