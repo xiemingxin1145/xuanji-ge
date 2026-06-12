@@ -48,6 +48,7 @@ import com.aning.xuanxue.feature.flyingstar.FlyingStarScreen
 import com.aning.xuanxue.feature.guide.GuideScreen
 import com.aning.xuanxue.feature.iching.IChingScreen
 import com.aning.xuanxue.feature.knowledge.KnowledgeScreen
+import com.aning.xuanxue.feature.mountain.MountainOracleScreen
 import com.aning.xuanxue.feature.name.NameScreen
 import com.aning.xuanxue.feature.seal.SealScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
@@ -82,6 +83,12 @@ fun AppNav() {
         composable("wellness") { WellnessScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("compass") { CompassScreen(onBack = { nav.popBackStack() }) }
         composable("flyingstar") { FlyingStarScreen(onBack = { nav.popBackStack() }) }
+        composable("mountain") {
+            MountainOracleScreen(
+                onBack = { nav.popBackStack() },
+                onOpenFlyingStar = { nav.navigate("flyingstar") }
+            )
+        }
         composable("bazi") { BaziScreen(onBack = { nav.popBackStack() }) }
         composable("iching") { IChingScreen(onBack = { nav.popBackStack() }) }
         composable("almanac") { AlmanacScreen(onBack = { nav.popBackStack() }) }
@@ -168,6 +175,7 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("wellness", "五行养生", "日课 · 呼吸 · 情绪调节", Icons.Filled.Spa),
         Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("flyingstar", "玄空飞星", "三元九运 · 飞星排盘", Icons.Filled.Apps),
+        Entry("mountain", "二十四山向", "坐山向首 · 元龙断法", Icons.Filled.Explore),
         Entry("bazi", "八字排盘", "四柱 · 五行 · 十神", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
         Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
