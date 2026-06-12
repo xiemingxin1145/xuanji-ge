@@ -28,8 +28,16 @@ fun AiSettingsScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf<Pair<Boolean, String>?>(null) }
     var testing by remember { mutableStateOf(false) }
 
-    XScaffold(title = "AI 玄师 · 接入设置", onBack = onBack) { padding ->
+    XScaffold(title = "问玄师 · 联网接入", onBack = onBack) { padding ->
         ScrollColumn(padding) {
+            XCard(Modifier.fillMaxWidth()) {
+                SectionTitle("联网状态说明")
+                Spacer(Modifier.height(8.dp))
+                Text("玄机阁已具备 INTERNET 权限。问玄师会直接请求你填写的 OpenAI 兼容接口。", color = TextMain, fontSize = 13.sp, lineHeight = 19.sp)
+                Spacer(Modifier.height(6.dp))
+                Text("当前阶段：支持大模型联网请求；暂未内置搜索引擎、地图、天气、在线知识库。后续会扩展为“问玄师 + 工具调用 + 在线资料库”。", color = TextSub, fontSize = 12.sp, lineHeight = 18.sp)
+            }
+
             XCard(Modifier.fillMaxWidth()) {
                 SectionTitle("快速选择服务商")
                 Spacer(Modifier.height(10.dp))
@@ -55,7 +63,7 @@ fun AiSettingsScreen(onBack: () -> Unit) {
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    "任意 OpenAI 兼容接口均可接入。费用走你自己的 Key，应用不经手。",
+                    "任意 OpenAI 兼容接口均可接入。用户界面统一叫“问玄师”，模型品牌只在设置页显示。费用走你自己的 Key，应用不经手。",
                     color = TextSub, fontSize = 11.sp, lineHeight = 16.sp
                 )
             }
@@ -108,7 +116,7 @@ fun AiSettingsScreen(onBack: () -> Unit) {
                                 testing = false
                                 status = if (r.isSuccess) {
                                     AiStore.save(ctx, c)
-                                    true to "连接成功，已保存 ✓"
+                                    true to "问玄师连接成功，已保存 ✓"
                                 } else false to (r.exceptionOrNull()?.message ?: "连接失败")
                             }
                         },
