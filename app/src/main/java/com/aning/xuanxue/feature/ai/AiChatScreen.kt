@@ -79,7 +79,7 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
         containerColor = Ink,
         topBar = {
             TopAppBar(
-                title = { Text("AI 玄师", color = GoldBright) },
+                title = { Text("问玄师", color = GoldBright) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回", tint = Gold)
@@ -87,7 +87,7 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                 },
                 actions = {
                     IconButton(onClick = onSettings) {
-                        Icon(Icons.Filled.Settings, "设置", tint = Gold)
+                        Icon(Icons.Filled.Settings, "联网接入设置", tint = Gold)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Ink)
@@ -121,17 +121,17 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
 
             if (!config.isReady) {
                 XCard(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Text("尚未接入大模型。", color = TextMain, fontSize = 14.sp)
+                    Text("问玄师尚未联网接入。", color = TextMain, fontSize = 14.sp)
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "填入你自己的 API Key（DeepSeek / Kimi / 通义 / OpenAI 等任意 OpenAI 兼容接口），费用走你的账户，应用不经手。",
+                        "填入你自己的 API Key（DeepSeek / Kimi / 通义 / OpenAI 等任意 OpenAI 兼容接口），问玄师即可真正请求大模型。费用走你的账户，应用不经手。",
                         color = TextSub, fontSize = 12.sp, lineHeight = 17.sp
                     )
                     Spacer(Modifier.height(12.dp))
                     Button(
                         onClick = onSettings,
                         colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Ink)
-                    ) { Text("去接入") }
+                    ) { Text("接入问玄师") }
                 }
             }
 
@@ -146,7 +146,7 @@ fun AiChatScreen(onBack: () -> Unit, onSettings: () -> Unit) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(16.dp), color = Gold, strokeWidth = 2.dp)
                         Spacer(Modifier.width(8.dp))
-                        Text("玄师推演中…", color = TextSub, fontSize = 13.sp)
+                        Text("问玄师推演中…", color = TextSub, fontSize = 13.sp)
                     }
                 }
             }
@@ -220,23 +220,23 @@ private fun AiMasterHeader(
             ) {
                 Image(
                     painter = painterResource(R.drawable.img_ai_master),
-                    contentDescription = "AI玄师形象",
+                    contentDescription = "问玄师形象",
                     modifier = Modifier.fillMaxSize().padding(6.dp),
                     contentScale = ContentScale.Fit
                 )
             }
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
-                Text("玄微子 · AI玄师", color = GoldBright, fontSize = 17.sp)
+                Text("玄机阁 · 问玄师", color = GoldBright, fontSize = 17.sp)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    if (isReady) "已接入模型：$modelName" else "未接入模型 · 请先配置 API Key",
+                    if (isReady) "已联网接入：$modelName" else "未接入模型 · 请先配置 API Key",
                     color = TextSub,
                     fontSize = 12.sp,
                     lineHeight = 17.sp
                 )
                 Spacer(Modifier.height(4.dp))
-                Text("传统文化参考 · 现实建议优先", color = TextSub.copy(alpha = 0.75f), fontSize = 11.sp)
+                Text("直连你填写的接口 · 传统文化参考 · 现实建议优先", color = TextSub.copy(alpha = 0.75f), fontSize = 11.sp)
             }
             TextButton(onClick = onSettings) {
                 Text(if (isReady) "切换" else "接入", color = Gold, fontSize = 12.sp)
