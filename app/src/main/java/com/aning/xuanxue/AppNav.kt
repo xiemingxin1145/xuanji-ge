@@ -36,6 +36,7 @@ import com.aning.xuanxue.feature.ai.PendingAiPromptStore
 import com.aning.xuanxue.feature.almanac.AlmanacScreen
 import com.aning.xuanxue.feature.bazi.BaziScreen
 import com.aning.xuanxue.feature.compass.CompassScreen
+import com.aning.xuanxue.feature.guide.GuideScreen
 import com.aning.xuanxue.feature.iching.IChingScreen
 import com.aning.xuanxue.feature.name.NameScreen
 import com.aning.xuanxue.ui.*
@@ -56,24 +57,15 @@ fun AppNav() {
     NavHost(navController = nav, startDestination = "splash") {
         composable("splash") { SplashScreen { nav.navigate("home") { popUpTo("splash") { inclusive = true } } } }
         composable("home") { HomeScreen(nav::navigate) }
-        composable("compass") {
-            CompassScreen(
+        composable("guide") {
+            GuideScreen(
                 onBack = { nav.popBackStack() },
                 onAiPrompt = ::openAiWithPrompt
             )
         }
-        composable("bazi") {
-            BaziScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
-        composable("iching") {
-            IChingScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
+        composable("compass") { CompassScreen(onBack = { nav.popBackStack() }) }
+        composable("bazi") { BaziScreen(onBack = { nav.popBackStack() }) }
+        composable("iching") { IChingScreen(onBack = { nav.popBackStack() }) }
         composable("almanac") { AlmanacScreen(onBack = { nav.popBackStack() }) }
         composable("name") { NameScreen(onBack = { nav.popBackStack() }) }
         composable("ai") {
@@ -210,6 +202,7 @@ private data class Entry(
 @Composable
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
+        Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
         Entry("compass", "风水罗盘", "二十四山 · 八卦方位", Icons.Filled.Explore),
         Entry("bazi", "八字排盘", "四柱 · 五行 · 十神", Icons.Filled.GridView),
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
@@ -231,7 +224,7 @@ fun HomeScreen(go: (String) -> Unit) {
 
             // 中央动态太极 + 罗盘视觉（仪式感核心）
             CentralXuanVisual(
-                onClick = { go("compass") },
+                onClick = { go("guide") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1.05f)
@@ -338,7 +331,7 @@ private fun CentralXuanVisual(onClick: () -> Unit, modifier: Modifier = Modifier
             // 叠加文字提示
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(110.dp))
-                Text("点击进入风水罗盘", color = Gold.copy(alpha = 0.6f), fontSize = 12.sp)
+                Text("点击进入今日问玄", color = Gold.copy(alpha = 0.6f), fontSize = 12.sp)
             }
         }
     }
