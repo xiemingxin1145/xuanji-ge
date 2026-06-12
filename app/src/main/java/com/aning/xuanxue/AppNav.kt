@@ -80,7 +80,6 @@ import com.aning.xuanxue.feature.cultivation.CultivationScreen
 import com.aning.xuanxue.feature.daily.DailyTaskScreen
 import com.aning.xuanxue.feature.onboarding.OnboardingScreen
 import com.aning.xuanxue.feature.ar.ARGhostScreen
-import com.aning.xuanxue.core.store.PlayerViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -170,13 +169,7 @@ fun AppNav() {
             DailyTaskScreen(onBack = { nav.popBackStack() }, onNavigate = { route -> nav.navigate(route) })
         }
         composable("ar_ghost") { ARGhostScreen(onBack = { nav.popBackStack() }) }
-        composable("onboarding") {
-            val playerVm: PlayerViewModel = viewModel()
-            OnboardingScreen(onDone = {
-                playerVm.onOnboardingDone()
-                nav.navigate("home") { popUpTo("onboarding") { inclusive = true } }
-            })
-        }
+
         composable("daily") {
             DailyQuestScreen(
                 viewModel = gameVm,
@@ -191,7 +184,7 @@ fun AppNav() {
             )
         }
         composable("onboarding") {
-            OnboardingScreen(onComplete = {
+            OnboardingScreen(onDone = {
                 gameVm.setOnboardingDone()
                 nav.navigate("home") { popUpTo("onboarding") { inclusive = true } }
             })
