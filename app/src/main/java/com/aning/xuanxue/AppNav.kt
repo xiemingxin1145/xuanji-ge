@@ -1,6 +1,12 @@
 package com.aning.xuanxue
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,14 +20,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +48,7 @@ import com.aning.xuanxue.feature.guide.GuideScreen
 import com.aning.xuanxue.feature.iching.IChingScreen
 import com.aning.xuanxue.feature.knowledge.KnowledgeScreen
 import com.aning.xuanxue.feature.name.NameScreen
+import com.aning.xuanxue.feature.seal.SealScreen
 import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
 import com.aning.xuanxue.ui.*
@@ -59,58 +67,32 @@ fun AppNav() {
     }
 
     NavHost(navController = nav, startDestination = "splash") {
-        composable("splash") { SplashScreen { nav.navigate("home") { popUpTo("splash") { inclusive = true } } } }
+        composable("splash") {
+            SplashScreen {
+                nav.navigate("home") { popUpTo("splash") { inclusive = true } }
+            }
+        }
         composable("home") { HomeScreen(nav::navigate) }
-        composable("guide") {
-            GuideScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
-        composable("knowledge") {
-            KnowledgeScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
-        composable("talisman") {
-            TalismanScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
-        composable("dream") {
-            DreamScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
-        composable("wellness") {
-            WellnessScreen(
-                onBack = { nav.popBackStack() },
-                onAiPrompt = ::openAiWithPrompt
-            )
-        }
+        composable("guide") { GuideScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("seal") { SealScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("knowledge") { KnowledgeScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("talisman") { TalismanScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("dream") { DreamScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
+        composable("wellness") { WellnessScreen(onBack = { nav.popBackStack() }, onAiPrompt = ::openAiWithPrompt) }
         composable("compass") { CompassScreen(onBack = { nav.popBackStack() }) }
         composable("bazi") { BaziScreen(onBack = { nav.popBackStack() }) }
         composable("iching") { IChingScreen(onBack = { nav.popBackStack() }) }
         composable("almanac") { AlmanacScreen(onBack = { nav.popBackStack() }) }
         composable("name") { NameScreen(onBack = { nav.popBackStack() }) }
-        composable("ai") {
-            AiChatScreen(
-                onBack = { nav.popBackStack() },
-                onSettings = { nav.navigate("ai_settings") }
-            )
-        }
+        composable("ai") { AiChatScreen(onBack = { nav.popBackStack() }, onSettings = { nav.navigate("ai_settings") }) }
         composable("ai_settings") { AiSettingsScreen(onBack = { nav.popBackStack() }) }
     }
 }
 
-// ==================== Splash 启动页（玄门仪式感） ====================
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {
     LaunchedEffect(Unit) {
-        delay(2200)
+        delay(1600)
         onFinish()
     }
 
@@ -120,56 +102,22 @@ fun SplashScreen(onFinish: () -> Unit) {
             .background(Ink),
         contentAlignment = Alignment.Center
     ) {
-        // 背景暗纹八卦
         Canvas(Modifier.fillMaxSize()) {
-            val cx = size.width / 2
-            val cy = size.height / 2
+            val cx = size.width / 2f
+            val cy = size.height / 2f
             val r = min(cx, cy) * 0.72f
-            val paint = android.graphics.Paint().apply {
-                isAntiAlias = true
-                color = Gold.copy(alpha = 0.08f).toArgb()
-                strokeWidth = 1.5f
-                style = android.graphics.Paint.Style.STROKE
-            }
-            for (i in 0 until 8) {
-                val ang = i * 45f
-                rotate(degrees = ang, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r, paint)
-                }
-            }
-            // 细微同心圆
-            for (k in 1..5) {
-                drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r * (0.3f + k * 0.12f), paint.apply { alpha = (30 + k * 8) })
-            }
+            drawCircle(Gold.copy(alpha = 0.08f), radius = r)
+            drawCircle(Gold.copy(alpha = 0.05f), radius = r * 0.68f)
+            drawCircle(Cinnabar.copy(alpha = 0.06f), radius = r * 0.42f)
         }
-
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // 朱砂印章风格标题
-            Text(
-                "玄机阁",
-                color = Cinnabar,
-                fontSize = 52.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 8.sp
-            )
+            Text("玄机阁", color = Cinnabar, fontSize = 52.sp, fontWeight = FontWeight.Bold, letterSpacing = 8.sp)
             Spacer(Modifier.height(8.dp))
-            Text(
-                "XUAN JI GE",
-                color = Gold.copy(alpha = 0.7f),
-                fontSize = 14.sp,
-                letterSpacing = 6.sp
-            )
+            Text("XUAN JI GE", color = Gold.copy(alpha = 0.75f), fontSize = 14.sp, letterSpacing = 6.sp)
             Spacer(Modifier.height(32.dp))
-
-            // 简化太极
-            TaijiSymbol(symbolSize = 92.dp, modifier = Modifier)
-
-            Spacer(Modifier.height(40.dp))
-            Text(
-                "测着玩 · 图个吉利 · 信则有",
-                color = TextSub.copy(alpha = 0.6f),
-                fontSize = 13.sp
-            )
+            TaijiSymbol(symbolSize = 92.dp)
+            Spacer(Modifier.height(36.dp))
+            Text("一部手机 · 观天时 · 测地气 · 解人心", color = TextSub.copy(alpha = 0.7f), fontSize = 13.sp)
         }
     }
 }
@@ -183,43 +131,23 @@ fun TaijiSymbol(symbolSize: androidx.compose.ui.unit.Dp, modifier: Modifier = Mo
         animationSpec = infiniteRepeatable(
             animation = tween(28000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
-        ), label = "taijiRot"
+        ),
+        label = "taijiRot"
     )
-
     Canvas(modifier.size(symbolSize)) {
-        val cx = this.size.width / 2
-        val cy = this.size.height / 2
+        val cx = size.width / 2f
+        val cy = size.height / 2f
         val r = min(cx, cy)
-
-        rotate(degrees = rotation, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-            val paint = android.graphics.Paint().apply { isAntiAlias = true }
-
-            // 太极阴阳
-            paint.color = GoldBright.toArgb()
-            drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r, paint)
-
-            paint.color = Ink.toArgb()
-            val path = android.graphics.Path().apply {
-                moveTo(cx, cy - r)
-                arcTo(cx - r, cy - r, cx + r, cy + r, -90f, 180f, false)
-                close()
-            }
-            drawContext.canvas.nativeCanvas.drawPath(path, paint)
-
-            // 小圆
-            paint.color = GoldBright.toArgb()
-            drawContext.canvas.nativeCanvas.drawCircle(cx, cy - r * 0.5f, r * 0.5f, paint)
-            paint.color = Ink.toArgb()
-            drawContext.canvas.nativeCanvas.drawCircle(cx, cy + r * 0.5f, r * 0.5f, paint)
-
-            paint.color = Cinnabar.toArgb()
-            drawContext.canvas.nativeCanvas.drawCircle(cx, cy - r * 0.5f, r * 0.18f, paint)
-            drawContext.canvas.nativeCanvas.drawCircle(cx, cy + r * 0.5f, r * 0.18f, paint)
+        rotate(rotation) {
+            drawCircle(GoldBright, radius = r)
+            drawCircle(Ink, radius = r * 0.48f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.5f))
+            drawCircle(GoldBright, radius = r * 0.48f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
+            drawCircle(Cinnabar, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.5f))
+            drawCircle(Ink, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
         }
     }
 }
 
-// ==================== 首页（升级中央视觉） ====================
 private data class Entry(
     val route: String,
     val title: String,
@@ -231,6 +159,7 @@ private data class Entry(
 fun HomeScreen(go: (String) -> Unit) {
     val entries = listOf(
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
+        Entry("seal", "我的印记", "五行印 · 八卦印 · 今日档案", Icons.Filled.AutoAwesome),
         Entry("knowledge", "玄门资料库", "道教 · 民俗 · 五行 · 风水", Icons.Filled.MenuBook),
         Entry("talisman", "今日符卡", "抽卡 · 印记 · 行动提醒", Icons.Filled.AutoAwesome),
         Entry("dream", "梦境记录", "解梦 · 情绪 · 民俗象意", Icons.Filled.NightsStay),
@@ -240,12 +169,12 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
         Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
-        Entry("ai", "AI 玄师", "可插拔大模型 · 解卦问事", Icons.Filled.AutoAwesome),
+        Entry("ai", "AI 玄师", "可插拔大模型 · 解卦问事", Icons.Filled.AutoAwesome)
     )
 
     XScaffold(title = "玄机阁") { padding ->
         Column(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = 16.dp)
@@ -253,32 +182,19 @@ fun HomeScreen(go: (String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Spacer(Modifier.height(8.dp))
-
-            // 中央动态太极 + 罗盘视觉（仪式感核心）
-            CentralXuanVisual(
-                onClick = { go("guide") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1.05f)
-                    .clip(RoundedCornerShape(24.dp))
-            )
-
+            CentralXuanVisual(onClick = { go("guide") })
             TodayHeader()
-
-            // 六宫格
-            val rows = entries.chunked(2)
-            rows.forEach { row ->
+            entries.chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    row.forEach { e ->
-                        GridCard(e, Modifier.weight(1f)) { go(e.route) }
+                    row.forEach { entry ->
+                        GridCard(entry, Modifier.weight(1f)) { go(entry.route) }
                     }
                     if (row.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
-
             Spacer(Modifier.height(12.dp))
             Text(
-                "测着玩 · 图个吉利 · 信则有",
+                "传统文化娱乐参考 · 现实建议优先",
                 color = TextSub,
                 fontSize = 12.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -290,80 +206,44 @@ fun HomeScreen(go: (String) -> Unit) {
 }
 
 @Composable
-private fun CentralXuanVisual(onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun CentralXuanVisual(onClick: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "homeVisual")
-    val rot by infiniteTransition.animateFloat(
+    val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(32000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = "slowRot"
+        animationSpec = infiniteRepeatable(tween(32000, easing = LinearEasing), RepeatMode.Restart),
+        label = "homeRot"
     )
-
     Surface(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.05f)
+            .clip(RoundedCornerShape(24.dp))
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         color = InkSurface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.35f))
+        border = BorderStroke(1.dp, Gold.copy(alpha = 0.35f))
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize().padding(24.dp)) {
-                val cx = size.width / 2
-                val cy = size.height / 2
+                val cx = size.width / 2f
+                val cy = size.height / 2f
                 val r = min(cx, cy) * 0.82f
-
-                rotate(degrees = rot, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                    // 外圈暗金
-                    val ring = android.graphics.Paint().apply {
-                        isAntiAlias = true
-                        color = Gold.copy(alpha = 0.25f).toArgb()
-                        strokeWidth = 2.5f
-                        style = android.graphics.Paint.Style.STROKE
-                    }
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r, ring)
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r * 0.78f, ring.apply { strokeWidth = 1.5f; alpha = 60 })
-
-                    // 八卦暗纹
-                    val baguaPaint = android.graphics.Paint().apply {
-                        isAntiAlias = true
-                        color = Gold.copy(alpha = 0.15f).toArgb()
-                        textSize = r * 0.09f
-                        textAlign = android.graphics.Paint.Align.CENTER
-                    }
-                    val bagua = listOf("乾", "兑", "离", "震", "巽", "坎", "艮", "坤")
-                    bagua.forEachIndexed { i, name ->
-                        val ang = i * 45f
-                        rotate(degrees = ang, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
-                            drawContext.canvas.nativeCanvas.drawText(name, cx, cy - r * 0.88f + baguaPaint.textSize / 3, baguaPaint)
+                rotate(rotation, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
+                    drawCircle(Gold.copy(alpha = 0.16f), radius = r)
+                    drawCircle(Gold.copy(alpha = 0.12f), radius = r * 0.72f)
+                    drawCircle(Cinnabar.copy(alpha = 0.08f), radius = r * 0.42f)
+                    for (i in 0 until 8) {
+                        rotate(i * 45f, pivot = androidx.compose.ui.geometry.Offset(cx, cy)) {
+                            drawCircle(Gold.copy(alpha = 0.08f), radius = r * 0.04f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.82f))
                         }
                     }
-
-                    // 简化太极核心
-                    val taijiPaint = android.graphics.Paint().apply { isAntiAlias = true }
-                    taijiPaint.color = GoldBright.toArgb()
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy, r * 0.42f, taijiPaint)
-
-                    taijiPaint.color = Ink.toArgb()
-                    val half = android.graphics.Path().apply {
-                        moveTo(cx, cy - r * 0.42f)
-                        arcTo(cx - r * 0.42f, cy - r * 0.42f, cx + r * 0.42f, cy + r * 0.42f, -90f, 180f, false)
-                        close()
-                    }
-                    drawContext.canvas.nativeCanvas.drawPath(half, taijiPaint)
-
-                    // 朱砂小点
-                    taijiPaint.color = Cinnabar.toArgb()
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy - r * 0.21f, r * 0.09f, taijiPaint)
-                    taijiPaint.color = GoldBright.toArgb()
-                    drawContext.canvas.nativeCanvas.drawCircle(cx, cy + r * 0.21f, r * 0.09f, taijiPaint)
                 }
             }
-
-            // 叠加文字提示
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(Modifier.height(110.dp))
-                Text("点击进入今日问玄", color = Gold.copy(alpha = 0.6f), fontSize = 12.sp)
+                Text("今日问玄", color = GoldBright, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(6.dp))
+                Text("先问所求 · 再入工具 · 最后问 AI", color = TextSub, fontSize = 12.sp)
             }
         }
     }
@@ -378,18 +258,16 @@ private fun TodayHeader() {
             c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)
         )
         val lunar = solar.lunar
-        val yi = lunar.dayYi.take(4).joinToString(" ")
-        val ji = lunar.dayJi.take(4).joinToString(" ")
         Triple(
-            "${solar.year}-${"%02d".format(solar.month)}-${"%02d".format(solar.day)}  ${solar.weekInChinese.let { "星期$it" }}",
+            "${solar.year}-${"%02d".format(solar.month)}-${"%02d".format(solar.day)}  星期${solar.weekInChinese}",
             "农历${lunar.monthInChinese}月${lunar.dayInChinese}  ${lunar.yearInGanZhi}${lunar.yearShengXiao}年 · ${lunar.dayInGanZhi}日",
-            yi to ji
+            lunar.dayYi.take(4).joinToString(" ") to lunar.dayJi.take(4).joinToString(" ")
         )
     }
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = InkSurface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.3f)),
+        border = BorderStroke(1.dp, Gold.copy(alpha = 0.3f)),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -411,7 +289,7 @@ private fun TodayHeader() {
 }
 
 @Composable
-private fun GridCard(e: Entry, modifier: Modifier, onClick: () -> Unit) {
+private fun GridCard(entry: Entry, modifier: Modifier, onClick: () -> Unit) {
     Surface(
         modifier = modifier
             .height(132.dp)
@@ -421,25 +299,25 @@ private fun GridCard(e: Entry, modifier: Modifier, onClick: () -> Unit) {
         color = InkSurface
     ) {
         Column(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .border(1.dp, Gold.copy(alpha = 0.25f), RoundedCornerShape(18.dp))
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                Modifier
+                modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(Brush.verticalGradient(listOf(Gold.copy(alpha = 0.25f), Gold.copy(alpha = 0.08f)))),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(e.icon, contentDescription = e.title, tint = GoldBright)
+                Icon(entry.icon, contentDescription = entry.title, tint = GoldBright)
             }
             Column {
-                Text(e.title, color = TextMain, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                Text(entry.title, color = TextMain, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(2.dp))
-                Text(e.sub, color = TextSub, fontSize = 11.sp)
+                Text(entry.sub, color = TextSub, fontSize = 11.sp)
             }
         }
     }
