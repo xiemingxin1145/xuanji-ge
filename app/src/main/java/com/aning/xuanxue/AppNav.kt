@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -33,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aning.xuanxue.feature.ai.AiChatScreen
 import com.aning.xuanxue.feature.ai.AiSettingsScreen
+import com.aning.xuanxue.feature.ai.PendingAiPromptStore
 import com.aning.xuanxue.feature.almanac.AlmanacScreen
 import com.aning.xuanxue.feature.bazi.BaziScreen
 import com.aning.xuanxue.feature.compass.CompassScreen
@@ -42,20 +42,38 @@ import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.delay
 import java.util.Calendar
-
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
 
 @Composable
 fun AppNav() {
     val nav = rememberNavController()
+
+    fun openAiWithPrompt(prompt: String) {
+        PendingAiPromptStore.set(prompt)
+        nav.navigate("ai")
+    }
+
     NavHost(navController = nav, startDestination = "splash") {
         composable("splash") { SplashScreen { nav.navigate("home") { popUpTo("splash") { inclusive = true } } } }
         composable("home") { HomeScreen(nav::navigate) }
-        composable("compass") { CompassScreen(onBack = { nav.popBackStack() }) }
-        composable("bazi") { BaziScreen(onBack = { nav.popBackStack() }) }
-        composable("iching") { IChingScreen(onBack = { nav.popBackStack() }) }
+        composable("compass") {
+            CompassScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
+        composable("bazi") {
+            BaziScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
+        composable("iching") {
+            IChingScreen(
+                onBack = { nav.popBackStack() },
+                onAiPrompt = ::openAiWithPrompt
+            )
+        }
         composable("almanac") { AlmanacScreen(onBack = { nav.popBackStack() }) }
         composable("name") { NameScreen(onBack = { nav.popBackStack() }) }
         composable("ai") {
