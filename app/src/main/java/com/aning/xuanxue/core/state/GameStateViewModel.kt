@@ -17,14 +17,17 @@ import java.util.*
  */
 class GameStateViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val ctx = app.applicationContext
+    private val store = PlayerDataStore(app.applicationContext)
+    private val _today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
 
     // ─── 存档流 ─────────────────────────────────────
-    val playerSave: StateFlow<PlayerSave> = PlayerDataStore.playerSaveFlow(ctx)
+    val playerSave: StateFlow<PlayerSave> = store.playerSaveFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, PlayerSave())
 
     // ─── 天时地利人和（模块间共享）───────────────────
-    val resonanceTriple: StateFlow<Triple<Int,Int,Int>> = PlayerDataStore.resonanceFlow(ctx)
+    val resonanceTriple: StateFlow<Triple<Int,Int,Int>> = combine(
+        store.tianShiFlow, store.diLiFlow, store.renHeFlow
+    ) { t, d, r -> Triple(t, d, r) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Triple(50,50,50))
 
     val resonanceResult: StateFlow<XuanjiResonance.Result> = resonanceTriple
@@ -32,98 +35,88 @@ class GameStateViewModel(app: Application) : AndroidViewModel(app) {
         .stateIn(viewModelScope, SharingStarted.Eagerly, XuanjiResonance.calculate(50,50,50))
 
     // ─── 每日状态 ────────────────────────────────────
-    private val _todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-    val dailyState: StateFlow<Pair<String,Boolean>> = PlayerDataStore.dailyFlow(ctx)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, "" to false)
-    val isDailyLingqiAvailable: Boolean
-        get() = dailyState.value.first != _todayDate
+    val todayCheckedIn: StateFlow<Boolean> = store.lastDailyDateFlow
+        .map { it == _today }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     // ─── 新手引导 ────────────────────────────────────
-    val onboardingDone: StateFlow<Boolean> = PlayerDataStore.onboardingDoneFlow(ctx)
+    val onboardingDone: StateFlow<Boolean> = store.onboardingDoneFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     // ─── 操作函数 ────────────────────────────────────
 
-    /** 黄历查询后更新天时，自动计算玄机共鸣 */
     fun onAlmanacViewed(tianShi: Int) = viewModelScope.launch {
-        val (_, d, r) = resonanceTriple.value
-        PlayerDataStore.updateResonanceTriple(ctx, tianShi, d, r)
-        PlayerDataStore.recordToolUsed(ctx, "almanac", lingqi = 20)
+        store.setTianShi(tianShi)
+        store.recordToolUse("almanac", playerSave.value)
         checkAchievements()
     }
 
-    /** 罗盘使用后更新地利 */
     fun onCompassUsed(diLi: Int) = viewModelScope.launch {
-        val (t, _, r) = resonanceTriple.value
-        PlayerDataStore.updateResonanceTriple(ctx, t, diLi, r)
-        PlayerDataStore.recordToolUsed(ctx, "compass")
+        store.setDiLi(diLi)
+        store.recordToolUse("compass", playerSave.value)
         checkAchievements()
     }
 
-    /** 易经起卦后更新人和（使用八字熵值） */
     fun onIChingCast(renHe: Int) = viewModelScope.launch {
-        val (t, d, _) = resonanceTriple.value
-        PlayerDataStore.updateResonanceTriple(ctx, t, d, renHe)
-        PlayerDataStore.recordToolUsed(ctx, "iching")
+        store.setRenHe(renHe)
+        store.recordToolUse("iching", playerSave.value)
         checkAchievements()
     }
 
-    /** 八字排盘后更新人和 */
     fun onBaziCalculated(renHe: Int) = viewModelScope.launch {
-        val (t, d, _) = resonanceTriple.value
-        PlayerDataStore.updateResonanceTriple(ctx, t, d, renHe)
-        PlayerDataStore.recordToolUsed(ctx, "bazi")
+        store.setRenHe(renHe)
+        store.recordToolUse("bazi", playerSave.value)
         checkAchievements()
     }
 
-    /** 成功捉鬼 */
     fun onGhostCaught(ghostId: String, essence: Int, xp: Long) = viewModelScope.launch {
-        PlayerDataStore.recordGhostCaught(ctx, ghostId, essence, xp)
+        store.catchGhost(ghostId, essence, xp, playerSave.value)
         val result = resonanceResult.value
-        if (result.level.name == "EPIC" || result.level.name == "LEGENDARY") {
-            PlayerDataStore.recordEpicResonance(ctx)
+        if (result.level.ordinal >= 3) { // EPIC or higher
+            recordEpicResonance()
         }
         checkAchievements()
     }
 
-    /** 案件结案 */
     fun onCaseComplete(caseId: String, xp: Long, rep: Int, lingqi: Int) = viewModelScope.launch {
-        PlayerDataStore.recordCaseComplete(ctx, caseId, xp, rep, lingqi)
+        store.completeCase(caseId, xp, rep, lingqi, playerSave.value)
         checkAchievements()
     }
 
-    /** 解锁典故 */
-    fun onLoreUnlocked(loreId: String) = viewModelScope.launch {
-        PlayerDataStore.unlockLore(ctx, loreId)
-    }
-
-    /** 领取每日灵气 */
     fun claimDailyLingqi() = viewModelScope.launch {
-        if (isDailyLingqiAvailable) {
-            PlayerDataStore.claimDailyLingqi(ctx, _todayDate, 50)
+        if (!todayCheckedIn.value) {
+            store.setDailyCheckIn(_today, (50..120).random(), playerSave.value)
         }
     }
 
-    /** 完成新手引导 */
     fun setOnboardingDone() = viewModelScope.launch {
-        PlayerDataStore.setOnboardingDone(ctx)
+        store.setOnboardingDone()
+    }
+
+    private suspend fun recordEpicResonance() {
+        val save = playerSave.value
+        val updated = save.copy(epicResonanceCount = save.epicResonanceCount + 1)
+        store.catchGhost("", 0, 200L, updated) // reuses persist logic, +200 xp for epic resonance
     }
 
     // ─── 成就检测 ─────────────────────────────────────
     private suspend fun checkAchievements() {
         val save = playerSave.value
         val ach = save.unlockedAchievementIds
-        if ("first_case" !in ach && save.casesCompleted >= 1)
-            PlayerDataStore.unlockAchievement(ctx, "first_case", 200L)
-        if ("first_ghost" !in ach && save.ghostsCaught >= 1)
-            PlayerDataStore.unlockAchievement(ctx, "first_ghost", 300L)
-        if ("tool_master" !in ach && save.toolsUsedSet.size >= 4)
-            PlayerDataStore.unlockAchievement(ctx, "tool_master", 500L)
-        if ("resonance_epic" !in ach && save.epicResonanceCount >= 1)
-            PlayerDataStore.unlockAchievement(ctx, "resonance_epic", 1000L)
-        if ("five_cases" !in ach && save.casesCompleted >= 5)
-            PlayerDataStore.unlockAchievement(ctx, "five_cases", 1000L)
-        if ("ten_ghosts" !in ach && save.ghostsCaught >= 10)
-            PlayerDataStore.unlockAchievement(ctx, "ten_ghosts", 1500L)
+        suspend fun unlock(id: String, xp: Long) {
+            if (id !in ach) {
+                val updated = save.copy(
+                    unlockedAchievementIds = save.unlockedAchievementIds + id,
+                    totalXp = save.totalXp + xp
+                )
+                store.recordToolUse("__ach_$id", updated)
+            }
+        }
+        if (save.casesCompleted >= 1)  unlock("first_case",  200L)
+        if (save.ghostsCaught >= 1)    unlock("first_ghost", 300L)
+        if (save.toolsUsedSet.size >= 4) unlock("tool_master", 500L)
+        if (save.epicResonanceCount >= 1) unlock("resonance_epic", 1000L)
+        if (save.casesCompleted >= 5)  unlock("five_cases",  1000L)
+        if (save.ghostsCaught >= 10)   unlock("ten_ghosts",  1500L)
     }
 }
