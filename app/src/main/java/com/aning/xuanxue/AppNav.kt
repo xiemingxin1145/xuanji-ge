@@ -58,6 +58,8 @@ import com.aning.xuanxue.feature.talisman.TalismanScreen
 import com.aning.xuanxue.feature.update.UpdateCenterScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
 import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
+// 零新增
+import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
 import com.aning.xuanxue.ui.*
 import com.nlf.calendar.Solar
 import kotlinx.coroutines.delay
@@ -103,6 +105,9 @@ fun AppNav() {
         composable("name") { NameScreen(onBack = { nav.popBackStack() }) }
         composable("ai") { AiChatScreen(onBack = { nav.popBackStack() }, onSettings = { nav.navigate("ai_settings") }) }
         composable("ai_settings") { AiSettingsScreen(onBack = { nav.popBackStack() }) }
+
+        // 零新增：玄机共鸣演示
+        composable("xuanji_resonance_demo") { XuanjiResonanceDemoScreen(onBack = { nav.popBackStack() }) }
     }
 }
 
@@ -160,8 +165,7 @@ fun TaijiSymbol(symbolSize: androidx.compose.ui.unit.Dp, modifier: Modifier = Mo
         rotate(rotation) {
             drawCircle(GoldBright, radius = r)
             drawCircle(Ink, radius = r * 0.48f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.5f))
-            drawCircle(GoldBright, radius = r * 0.48f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
-            drawCircle(Cinnabar, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy - r * 0.5f))
+            drawCircle(Cinnabar, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
             drawCircle(Ink, radius = r * 0.12f, center = androidx.compose.ui.geometry.Offset(cx, cy + r * 0.5f))
         }
     }
@@ -194,7 +198,9 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("iching", "易经起卦", "六十四卦 · 动爻", Icons.Filled.Casino),
         Entry("almanac", "老黄历", "宜忌 · 冲煞 · 吉神", Icons.Filled.CalendarMonth),
         Entry("name", "姓名五行", "缺补 · 起名参考", Icons.Filled.Spa),
-        Entry("ai", "问玄师", "联网接入 · 解卦问事", Icons.Filled.AutoAwesome)
+        Entry("ai", "问玄师", "联网接入 · 解卦问事", Icons.Filled.AutoAwesome),
+        // 零新增：玄机共鸣演示入口
+        Entry("xuanji_resonance_demo", "玄机共鸣测试", "天时·地利·人和 核心引擎", Icons.Filled.AutoAwesome)
     )
 
     XScaffold(title = "玄机阁") { padding ->
