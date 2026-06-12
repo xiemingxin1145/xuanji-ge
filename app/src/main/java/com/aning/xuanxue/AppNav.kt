@@ -106,7 +106,9 @@ fun AppNav() {
 
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
+        XuanSound.play(context, XuanSound.Effect.Open)
         delay(1600)
         onFinish()
     }
