@@ -13,7 +13,10 @@ object CompassUtils {
     /** 角度转后天八卦 */
     fun degreeToBagua(deg: Float): String {
         val normalized = ((deg % 360) + 360) % 360
-        val closest = BAGUA_8.minByOrNull { kotlin.math.abs(it.first - normalized) }
+        val closest = BAGUA_8.minByOrNull {
+            val d = kotlin.math.abs(it.first - normalized)
+            kotlin.math.min(d, 360 - d)
+        }
         return closest?.second ?: "坎"
     }
 

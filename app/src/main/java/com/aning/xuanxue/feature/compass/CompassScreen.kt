@@ -61,7 +61,9 @@ private fun rememberAzimuthAndAccuracy(): State<Pair<Float, Int>> {
 
 @Composable
 fun CompassScreen(onBack: () -> Unit) {
-    val (azimuth, accuracy) by rememberAzimuthAndAccuracy()
+    val sensorData by rememberAzimuthAndAccuracy()
+    val azimuth = sensorData.first
+    val accuracy = sensorData.second
     val mountain = CompassUtils.degreeToMountain24(azimuth)
     val bagua = CompassUtils.degreeToBagua(azimuth)
     val wuxing = CompassUtils.degreeToFiveElement(azimuth)
