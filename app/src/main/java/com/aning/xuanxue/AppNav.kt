@@ -60,8 +60,11 @@ import com.aning.xuanxue.feature.update.UpdateCenterScreen
 import com.aning.xuanxue.feature.wellness.WellnessScreen
 import com.aning.xuanxue.feature.xuanhuang.EarthVeinScreen
 import com.aning.xuanxue.feature.xuanhuang.FateGrowthScreen
+import com.aning.xuanxue.feature.xuanhuang.IllustrationPromptScreen
 import com.aning.xuanxue.feature.xuanhuang.ShanhaiAtlasScreen
+import com.aning.xuanxue.feature.xuanhuang.StarChartScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanSuanVerifyScreen
+import com.aning.xuanxue.feature.xuanhuang.XuanTaskScreen
 import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
 import com.aning.xuanxue.feature.xuanqi.XuanqiScreen
@@ -88,12 +91,15 @@ fun AppNav() {
         }
         composable("home") { HomeScreen(nav::navigate) }
 
-        // V2.0 天地玄黄游戏化入口
+        // V2.x 天地玄黄游戏化入口
         composable("xuanhuang") { XuanhuangDashboardScreen(onBack = { nav.popBackStack() }, go = nav::navigate) }
         composable("earth_vein") { EarthVeinScreen(onBack = { nav.popBackStack() }) }
         composable("fate_growth") { FateGrowthScreen(onBack = { nav.popBackStack() }) }
         composable("shanhai_atlas") { ShanhaiAtlasScreen(onBack = { nav.popBackStack() }) }
         composable("xuan_verify") { XuanSuanVerifyScreen(onBack = { nav.popBackStack() }) }
+        composable("star_chart") { StarChartScreen(onBack = { nav.popBackStack() }) }
+        composable("xuan_tasks") { XuanTaskScreen(onBack = { nav.popBackStack() }) }
+        composable("illustration_prompts") { IllustrationPromptScreen(onBack = { nav.popBackStack() }) }
 
         composable("status") { FeatureStatusScreen(onBack = { nav.popBackStack() }) }
         composable("update") { UpdateCenterScreen(onBack = { nav.popBackStack() }) }
@@ -152,7 +158,7 @@ fun SplashScreen(onFinish: () -> Unit) {
             Spacer(Modifier.height(32.dp))
             TaijiSymbol(symbolSize = 92.dp)
             Spacer(Modifier.height(32.dp))
-            Text("天地玄黄 · 山海地脉 · 命格共鸣", color = TextSub.copy(alpha = 0.75f), fontSize = 13.sp)
+            Text("天地玄黄 · 山海地脉 · 星宿天图", color = TextSub.copy(alpha = 0.75f), fontSize = 13.sp)
         }
     }
 }
@@ -200,6 +206,9 @@ fun HomeScreen(go: (String) -> Unit) {
         Entry("fate_growth", "命格成长", "五行属性 · 玄气加成 · 轻游戏养成", Icons.Filled.Spa, true),
         Entry("shanhai_atlas", "山海图鉴", "神兽 · 神祇 · 法器 · 插图收集", Icons.Filled.MenuBook, true),
         Entry("xuan_verify", "玄算验真", "天时地利人和 · 自行验算", Icons.Filled.Verified, true),
+        Entry("star_chart", "星宿天图", "宇宙星空 · 二十八宿 · 今日值宿", Icons.Filled.Star, true),
+        Entry("xuan_tasks", "玄门任务", "每日循环 · 灵气奖励 · 游戏成长", Icons.Filled.CheckCircle, true),
+        Entry("illustration_prompts", "插图资源库", "首页主图 · 山海地图 · 神兽卡面提示词", Icons.Filled.Image, true),
         Entry("status", "新版功能清单", "${AppVersion.DISPLAY}", Icons.Filled.Verified),
         Entry("update", "检查更新", "APP 内打开最新版安装包", Icons.Filled.Verified),
         Entry("guide", "玄门向导", "今日问玄 · 先问再测", Icons.Filled.AutoAwesome),
@@ -236,7 +245,7 @@ fun HomeScreen(go: (String) -> Unit) {
             })
             TodayHeader()
 
-            SectionTitle("天地玄黄 V2.0")
+            SectionTitle("天地玄黄 V2.1")
             entries.filter { it.featured }.chunked(2).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     row.forEach { entry ->
@@ -337,7 +346,7 @@ private fun CentralXuanVisual(onClick: () -> Unit) {
                 Text("山川河流 · 宇宙星空 · 地脉共鸣", color = TextSub, fontSize = 12.sp)
                 Spacer(Modifier.height(18.dp))
                 Surface(shape = RoundedCornerShape(30.dp), color = Gold.copy(alpha = 0.14f), border = BorderStroke(1.dp, Gold.copy(alpha = 0.42f))) {
-                    Text("进入 V2.0 玄幻游戏化总入口", color = GoldBright, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp))
+                    Text("进入 V2.1 玄幻游戏化总入口", color = GoldBright, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp))
                 }
             }
         }
