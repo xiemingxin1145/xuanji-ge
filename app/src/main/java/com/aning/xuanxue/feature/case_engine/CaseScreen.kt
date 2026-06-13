@@ -18,7 +18,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aning.xuanxue.core.sound.XuanSound
+import com.aning.xuanxue.core.store.PlayerViewModel
 import com.aning.xuanxue.core.xuanji.XuanjiResonance
 import com.aning.xuanxue.ui.*
 import kotlinx.coroutines.delay
@@ -129,10 +132,19 @@ private fun DifficultyDots(difficulty: Int, color: Color) {
 fun CasePlayScreen(
     caseId: String,
     onBack: () -> Unit,
-    onNavigateTool: (String) -> Unit
+    onNavigateTool: (String) -> Unit,
+    playerVm: PlayerViewModel
 ) {
     val case = remember { CaseRepository.getCase(caseId) }
-    var progress by remember { mutableStateOf(CaseProgress(caseId, case.startScene.id)) }
+    // 从 DataStore 读取三才初始值（工具用完后已持久化）
+    val savedTianShi by playerVm.tianShi.collectAsStateWithLifecycle()
+    val savedDiLi   by playerVm.diLi.collectAsStateWithLifecycle()
+    val savedRenHe  by playerVm.renHe.collectAsStateWithLifecycle()
+    var progress by remember(savedTianShi, savedDiLi, savedRenHe) {
+        mutableStateOf(CaseProgress(caseId, case.startScene.id,
+            tianShi = savedTianShi, diLi = savedDiLi, renHe = savedRenHe))
+    }
+    var caseResultSaved by remember { mutableStateOf(false) }
     var textVisible by remember { mutableStateOf(false) }
     var choicesVisible by remember { mutableStateOf(false) }
     var resonanceResult by remember { mutableStateOf<XuanjiResonance.Result?>(null) }
@@ -220,7 +232,21 @@ fun CasePlayScreen(
                     }
                     Spacer(Modifier.height(16.dp))
                     Button(
-                        onClick = onBack,
+                        onClick = {
+                            // 只在圆满/隐藏结局首次触发时写入存档
+                            if (!caseResultSaved &&
+                                currentScene.endingType != EndingType.BAD) {
+                                val xpReward = case.meta.difficulty * 200L +
+                                    progress.xuanqiEarned * 10L
+                                val repReward = case.meta.difficulty * 10
+                                playerVm.onCaseCompleted(
+                                    caseId, xpReward, repReward,
+                                    progress.xuanqiEarned
+                                )
+                                caseResultSaved = true
+                            }
+                            onBack()
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = accentColor.copy(alpha = 0.2f),
                             contentColor = accentColor),
