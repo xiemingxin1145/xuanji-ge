@@ -18,7 +18,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aning.xuanxue.core.sound.XuanSound
+import com.aning.xuanxue.core.store.PlayerViewModel
 import com.aning.xuanxue.core.xuanji.XuanjiResonance
 import com.aning.xuanxue.ui.*
 import kotlinx.coroutines.delay
@@ -36,15 +39,14 @@ sealed class HuntState {
 }
 
 @Composable
-fun GhostHuntScreen(onBack: () -> Unit) {
+fun GhostHuntScreen(onBack: () -> Unit, playerVm: PlayerViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var huntState by remember { mutableStateOf<HuntState>(HuntState.Idle) }
-    var totalCaught by remember { mutableStateOf(0) }
-    var ghostEssence by remember { mutableStateOf(0) }
+    val playerSave by playerVm.playerSave.collectAsStateWithLifecycle()
+    val resonance by playerVm.resonance.collectAsStateWithLifecycle()
     var message by remember { mutableStateOf("感应天地气息，等待鬼魂显形……") }
-    var resonance by remember { mutableStateOf(XuanjiResonance.calculate(60, 55, 50)) }
 
     val screenW = 360f; val screenH = 500f
 
@@ -98,8 +100,8 @@ fun GhostHuntScreen(onBack: () -> Unit) {
             }
             if (huntState is HuntState.Caught) {
                 val caught = huntState as HuntState.Caught
-                totalCaught++
-                ghostEssence += caught.ghost.dropEssence
+                // 写入持久化
+                scope.launch { playerVm.onGhostCaught(caught.ghost.name, caught.ghost.dropEssence, caught.ghost.dropEssence.toLong() * 10L) }
                 message = "✦ 成功镇压【${caught.ghost.name}】！获得鬼气 ×${caught.ghost.dropEssence}"
                 delay(2500)
                 huntState = HuntState.Idle
@@ -146,8 +148,8 @@ fun GhostHuntScreen(onBack: () -> Unit) {
                 }
                 Text("捉鬼行动", color = Color(0xFF00FF9C), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("已捉：$totalCaught", color = GoldBright, fontSize = 13.sp)
-                    Text("鬼气：$ghostEssence", color = Color(0xFF00FF9C), fontSize = 11.sp)
+                    Text("已捉：${playerSave.ghostsCaught}", color = GoldBright, fontSize = 13.sp)
+                    Text("鬼气：${playerSave.ghostEssence}", color = Color(0xFF00FF9C), fontSize = 11.sp)
                 }
             }
 
