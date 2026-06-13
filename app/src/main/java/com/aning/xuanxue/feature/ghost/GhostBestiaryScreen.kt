@@ -14,6 +14,10 @@ import androidx.compose.ui.unit.*
 import com.aning.xuanxue.ui.*
 import com.aning.xuanxue.feature.investigation.GhostCaseTable
 import com.aning.xuanxue.feature.investigation.XuanTool
+import com.aning.xuanxue.core.art.ArtAssets
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 /**
  * 鬼怪图鉴 — 山海经来源，民俗典故解说
@@ -89,6 +93,8 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
 
             if (expanded) {
                 Spacer(Modifier.height(12.dp))
+                // 鬼怪场景大图卡（GPT美术）。有图显大图，无图跳过
+                GhostSceneBanner(ghost, caught)
                 // 典故来源
                 Surface(shape = RoundedCornerShape(8.dp), color = Gold.copy(alpha = 0.08f)) {
                     Text("📜 ${ghost.origin}", color = Gold.copy(alpha = 0.8f), fontSize = 11.sp,
@@ -172,6 +178,57 @@ private fun EvidenceChips(ghost: GhostType) {
             fontSize = 10.sp,
             lineHeight = 15.sp
         )
+    }
+}
+
+@Composable
+private fun GhostSceneBanner(ghost: GhostType, caught: Boolean) {
+    val res = ArtAssets.ghostRes(ghost.id) ?: return  // 无图则不显示banner
+    Column {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(220.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = BorderStroke(1.5.dp, ghost.rarity.color.copy(alpha = if (caught) 0.7f else 0.3f))
+        ) {
+            Box {
+                Image(
+                    painter = painterResource(res),
+                    contentDescription = ghost.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                        .then(
+                            // 未捕获：压暗+去饱和，营造"尚未收服"的神秘感
+                            if (!caught) Modifier.alpha(0.45f) else Modifier
+                        )
+                )
+                // 底部渐变压暗，让文字（若叠加）可读
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            0.6f to Color.Transparent,
+                            1f to Color(0xCC0D0A14)
+                        )
+                    )
+                )
+                // 未捕获蒙层提示
+                if (!caught) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("？ 尚未收服", color = Color.White.copy(alpha = 0.7f),
+                            fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                // 左下角鬼名
+                Text(
+                    ghost.name,
+                    color = if (caught) ghost.rarity.color else Color.White.copy(alpha = 0.5f),
+                    fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.BottomStart).padding(12.dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
     }
 }
 
