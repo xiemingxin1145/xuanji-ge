@@ -86,7 +86,24 @@ enum class EvidenceType(
         "怪声尖啸", "📢",
         "非人能及的尖啸刺破夜色，听之心悸。",
         Color(0xFFE57373)
+    ),
+    OMEN_STICK(
+        "灵签凶兆", "🎴",
+        "摇签落下凶卦，签辞直指此鬼执念所在。",
+        Color(0xFFFF8A65)
     );
+
+    /** 该证据对应的真实传感器钩子（开发参考，吸收自轻量版设计） */
+    val sensorHook: String
+        get() = when (this) {
+            MAGNETIC_CHAOS, COMPASS_REVERSED -> "TYPE_MAGNETIC_FIELD + TYPE_ROTATION_VECTOR"
+            WHISPER, VOICE_MIMIC, LOW_CRY, SHRILL_SCREAM -> "RECORD_AUDIO（分贝/频段）"
+            MIRROR_ANOMALY, WATER_SHADOW -> "CAMERA / ARCore"
+            FOOTSTEP_QUAKE -> "TYPE_ACCELEROMETER"
+            COLD_BREATH, TALISMAN_BURN -> "环境温度 / 剧情触发"
+            SEAL_BREAK -> "触摸屏画符完成度"
+            OMEN_STICK -> "TYPE_ACCELEROMETER（摇签）"
+        }
 }
 
 // ─────────────────────────────────────────────
@@ -148,6 +165,14 @@ enum class XuanTool(
             EvidenceType.FOOTSTEP_QUAKE
         ),
         intro = "伏地而听。重物行近的地脉震动，瞒不过这面小鼓。"
+    ),
+    OMEN_LOTS(
+        "灵签筒", "🎴", ToolKind.DETECTOR,
+        sensorHint = "加速度计 Accelerometer（摇动）",
+        detects = setOf(
+            EvidenceType.OMEN_STICK
+        ),
+        intro = "摇而问卜。凶签所指，正是此鬼执念所在。"
     ),
     CINNABAR_SEAL(
         "朱砂符笔", "🖌", ToolKind.DETECTOR,
@@ -281,13 +306,57 @@ object GhostCaseTable {
             ),
             weaknessTool = XuanTool.THUNDER_WOOD,
             backlashDesc = "山魅遁入林木，反手震得你气血翻涌。"
+        ),
+
+        GhostCaseProfile(
+            ghostId = "ye_cha",
+            displayName = "夜叉",
+            evidences = setOf(
+                EvidenceType.FOOTSTEP_QUAKE,
+                EvidenceType.MAGNETIC_CHAOS,
+                EvidenceType.VOICE_MIMIC
+            ),
+            weaknessTool = XuanTool.PEACH_SWORD,
+            backlashDesc = "夜叉铁甲一震，你的桃木剑险些脱手。"
+        ),
+
+        GhostCaseProfile(
+            ghostId = "jiu_mei",
+            displayName = "九尾狐魅",
+            evidences = setOf(
+                EvidenceType.MIRROR_ANOMALY,
+                EvidenceType.VOICE_MIMIC,
+                EvidenceType.OMEN_STICK
+            ),
+            weaknessTool = XuanTool.DEMON_MIRROR,
+            backlashDesc = "狐魅媚术入心，你一时神志恍惚，险些着了道。"
+        ),
+
+        GhostCaseProfile(
+            ghostId = "gu_shen",
+            displayName = "古神残骸",
+            evidences = setOf(
+                EvidenceType.COMPASS_REVERSED,
+                EvidenceType.MAGNETIC_CHAOS,
+                EvidenceType.MIRROR_ANOMALY
+            ),
+            weaknessTool = XuanTool.THUNDER_WOOD,
+            backlashDesc = "古神残识低吟，天地为之色变，你被那威压压得喘不过气。"
         )
     )
 
     fun byGhostId(id: String) = profiles.first { it.ghostId == id }
 
-    /** 当前关卡可能出现的鬼种池（MVP=全部5种） */
-    fun pool(): List<GhostCaseProfile> = profiles
+    /**
+     * 关卡鬼种池。MVP 荒宅=前5种常见鬼；
+     * 后续可按场景配置（如墓场出夜叉、古宅出九尾）。
+     */
+    fun pool(scene: String = "城郊荒宅"): List<GhostCaseProfile> = when (scene) {
+        "城郊荒宅" -> profiles.filter {
+            it.ghostId in setOf("you_hun", "shui_gui", "yuan_hun", "li_gui", "shan_mei")
+        }
+        else -> profiles   // 其他场景暂用全部
+    }
 
     /**
      * 推理核心：给定已采集证据，返回仍然"可能"的鬼种。
@@ -299,5 +368,46 @@ object GhostCaseTable {
     ): List<GhostCaseProfile> {
         if (collected.isEmpty()) return pool
         return pool.filter { it.evidences.containsAll(collected) }
+    }
+
+    /**
+     * 严格定鬼（吸收自轻量版 confirmedGhost）：
+     * 仅当集齐≥3条证据、且候选只剩唯一一种时，才算"三证定鬼"。
+     */
+    fun confirmedGhost(
+        collected: Set<EvidenceType>,
+        pool: List<GhostCaseProfile> = profiles
+    ): GhostCaseProfile? {
+        if (collected.size < 3) return null
+        return narrowDown(collected, pool).singleOrNull()
+    }
+
+    /**
+     * 智能推荐下一个该用的探测器（吸收自轻量版 recommendedDetector）：
+     * 统计当前候选鬼种"还缺的证据"分别由哪些探测器采集，推最高频的那个。
+     */
+    fun recommendedDetector(
+        collected: Set<EvidenceType>,
+        pool: List<GhostCaseProfile> = profiles
+    ): XuanTool? {
+        val remainingEvidence = narrowDown(collected, pool)
+            .flatMap { it.evidences }
+            .filterNot { it in collected }
+            .toSet()
+        if (remainingEvidence.isEmpty()) return null
+        return XuanTool.detectors
+            .maxByOrNull { tool -> tool.detects.intersect(remainingEvidence).size }
+            ?.takeIf { it.detects.intersect(remainingEvidence).isNotEmpty() }
+    }
+
+    /** 取证进度标签 */
+    fun progressLabel(
+        collected: Set<EvidenceType>,
+        pool: List<GhostCaseProfile> = profiles
+    ): String = when (collected.size) {
+        0 -> "尚未取证"
+        1 -> "一证初明"
+        2 -> "二证锁疑"
+        else -> if (confirmedGhost(collected, pool) != null) "三证定鬼" else "证据存疑"
     }
 }
