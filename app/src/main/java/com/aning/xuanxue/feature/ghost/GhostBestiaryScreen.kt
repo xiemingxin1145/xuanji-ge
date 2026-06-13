@@ -32,7 +32,7 @@ fun GhostBestiaryScreen(onBack: () -> Unit, caughtIds: Set<String> = emptySet())
         ) {
             Spacer(Modifier.height(4.dp))
             Text(
-                "出自《山海经》《搜神记》《太平广记》等公共域典籍；新增三证定鬼推理层。",
+                "民俗鬼怪卡册 · 已接入场景插图 · 点开查看三证与克制法器。",
                 color = TextSub, fontSize = 12.sp
             )
             GhostRarity.entries.forEach { rarity ->
@@ -67,13 +67,12 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
         shape = RoundedCornerShape(16.dp),
-        color = if (caught) ghost.rarity.color.copy(alpha = 0.08f) else Color.White.copy(alpha = 0.03f),
-        border = BorderStroke(1.dp, if (caught) ghost.rarity.color.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.1f))
+        color = if (caught) ghost.rarity.color.copy(alpha = 0.08f) else Color.White.copy(alpha = 0.035f),
+        border = BorderStroke(1.dp, if (caught) ghost.rarity.color.copy(alpha = 0.55f) else Color.White.copy(alpha = 0.12f))
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // 几何风格鬼形图标
-                GhostIcon(ghost, Modifier.size(48.dp))
+                GhostThumb(ghost, caught, Modifier.size(width = 78.dp, height = 98.dp))
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -81,21 +80,25 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
                             fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Text(ghost.alias, color = TextSub, fontSize = 11.sp)
                     }
-                    Spacer(Modifier.height(3.dp))
+                    Spacer(Modifier.height(5.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         RarityBadge(ghost.rarity)
                         ElementBadge(ghost.element)
                         DifficultyBadge(ghost.catchDifficulty)
                     }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        if (ArtAssets.ghostSceneRes(ghost.id) != null) "已接入插图 · 点击展开" else "暂无插图 · 使用程序化占位",
+                        color = if (ArtAssets.ghostSceneRes(ghost.id) != null) Gold.copy(alpha = 0.85f) else TextSub,
+                        fontSize = 10.sp
+                    )
                 }
                 Text(if (expanded) "▲" else "▼", color = TextSub, fontSize = 12.sp)
             }
 
             if (expanded) {
                 Spacer(Modifier.height(12.dp))
-                // 鬼怪场景大图卡（GPT美术）。有图显大图，无图跳过
                 GhostSceneBanner(ghost, caught)
-                // 典故来源
                 Surface(shape = RoundedCornerShape(8.dp), color = Gold.copy(alpha = 0.08f)) {
                     Text("📜 ${ghost.origin}", color = Gold.copy(alpha = 0.8f), fontSize = 11.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -105,7 +108,6 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
                 Spacer(Modifier.height(10.dp))
                 EvidenceChips(ghost)
                 Spacer(Modifier.height(10.dp))
-                // 克制信息
                 Surface(shape = RoundedCornerShape(8.dp), color = Cinnabar.copy(alpha = 0.08f)) {
                     Text("⚔ 克制：${ghost.weaknessTool}", color = Cinnabar.copy(alpha = 0.9f), fontSize = 11.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
@@ -141,8 +143,39 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
 }
 
 @Composable
+private fun GhostThumb(ghost: GhostType, caught: Boolean, modifier: Modifier) {
+    val res = ArtAssets.ghostSceneRes(ghost.id)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = Color.Black.copy(alpha = 0.35f),
+        border = BorderStroke(1.dp, ghost.rarity.color.copy(alpha = 0.45f))
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            if (res != null) {
+                Image(
+                    painter = painterResource(res),
+                    contentDescription = ghost.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().alpha(if (caught) 1f else 0.82f)
+                )
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            1f to Color(0xAA0D0A14)
+                        )
+                    )
+                )
+            } else {
+                GhostIcon(ghost, Modifier.size(48.dp))
+            }
+        }
+    }
+}
+
+@Composable
 private fun EvidenceChips(ghost: GhostType) {
-    // 从统一的 investigation 主系统取该鬼的证据画像
     val profile = remember(ghost.id) {
         GhostCaseTable.profiles.firstOrNull { it.ghostId == ghost.id }
     }
@@ -156,7 +189,6 @@ private fun EvidenceChips(ghost: GhostType) {
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             evidences.forEach { evidence ->
-                // 找出能探测该证据的法器名
                 val detector = XuanTool.detectors
                     .firstOrNull { evidence in it.detects }?.label ?: "—"
                 Surface(
@@ -183,47 +215,44 @@ private fun EvidenceChips(ghost: GhostType) {
 
 @Composable
 private fun GhostSceneBanner(ghost: GhostType, caught: Boolean) {
-    val res = ArtAssets.ghostRes(ghost.id) ?: return  // 无图则不显示banner
+    val res = ArtAssets.ghostSceneRes(ghost.id) ?: return
     Column {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.5.dp, ghost.rarity.color.copy(alpha = if (caught) 0.7f else 0.3f))
+                .height(260.dp),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.5.dp, ghost.rarity.color.copy(alpha = if (caught) 0.85f else 0.55f))
         ) {
             Box {
                 Image(
                     painter = painterResource(res),
                     contentDescription = ghost.name,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                        .then(
-                            // 未捕获：压暗+去饱和，营造"尚未收服"的神秘感
-                            if (!caught) Modifier.alpha(0.45f) else Modifier
-                        )
+                    modifier = Modifier.fillMaxSize().alpha(if (caught) 1f else 0.88f)
                 )
-                // 底部渐变压暗，让文字（若叠加）可读
                 Box(
                     Modifier.fillMaxSize().background(
                         Brush.verticalGradient(
-                            0.6f to Color.Transparent,
-                            1f to Color(0xCC0D0A14)
+                            0f to Color.Transparent,
+                            0.65f to Color.Transparent,
+                            1f to Color(0xDD0D0A14)
                         )
                     )
                 )
-                // 未捕获蒙层提示
-                if (!caught) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("？ 尚未收服", color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    }
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp),
+                    shape = RoundedCornerShape(999.dp),
+                    color = Color.Black.copy(alpha = 0.45f),
+                    border = BorderStroke(1.dp, ghost.rarity.color.copy(alpha = 0.7f))
+                ) {
+                    Text(if (caught) "已收服" else "未收服", color = ghost.rarity.color, fontSize = 10.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
                 }
-                // 左下角鬼名
                 Text(
-                    ghost.name,
-                    color = if (caught) ghost.rarity.color else Color.White.copy(alpha = 0.5f),
-                    fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                    "${ghost.name}  ${ghost.alias}",
+                    color = Color.White,
+                    fontSize = 22.sp, fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.BottomStart).padding(12.dp)
                 )
             }
