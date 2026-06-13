@@ -10,7 +10,8 @@ import android.media.ToneGenerator
  * v1.6：支持本机开关保存；当前用系统 ToneGenerator 做轻量提示音，
  * 后续可替换为 SoundPool + res/raw 音效素材。
  *
- * v2.2：补充阴阳录探测/取证需要的轻量音效枚举，先不引入音频素材，保证 APK 仍可纯源码构建。
+ * v2.2：补充阴阳录探测/取证需要的音效入口；优先调用 ProceduralSound 零素材合成，
+ * 不支持时回退 ToneGenerator，保证 APK 仍可纯源码构建。
  */
 object XuanSound {
     enum class Effect {
@@ -52,6 +53,20 @@ object XuanSound {
 
     fun play(context: Context, effect: Effect) {
         if (!isEnabled(context)) return
+
+        // 高氛围音效走程序合成；失败时继续走 ToneGenerator 回退，不影响主流程。
+        val handledByProcedural = runCatching {
+            when (effect) {
+                Effect.Bell -> ProceduralSound.play(ProceduralSound.Sfx.WIND_CHIME, 0.55f)
+                Effect.Wind -> ProceduralSound.play(ProceduralSound.Sfx.COLD_WIND, 0.35f)
+                Effect.Seal -> ProceduralSound.play(ProceduralSound.Sfx.TALISMAN, 0.62f)
+                Effect.GhostNear -> ProceduralSound.play(ProceduralSound.Sfx.HEARTBEAT, 0.7f)
+                else -> return@runCatching false
+            }
+            true
+        }.getOrDefault(false)
+        if (handledByProcedural) return
+
         try {
             val generator = tone ?: ToneGenerator(AudioManager.STREAM_MUSIC, 24).also { tone = it }
             val toneType = when (effect) {
