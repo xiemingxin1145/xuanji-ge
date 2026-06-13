@@ -322,6 +322,7 @@ private fun GhostInfoCard(ghost: GhostType, state: HuntState) {
 // ═══════════════════════════════════════════════
 // 镇压揭晓演出（GPT方案：场景+鬼影浮现+封印光效+真名揭晓）
 // ═══════════════════════════════════════════════
+// 镇压揭晓演出（场景+鬼影浮现+封印光效+真名揭晓）· 双轨已合并
 @Composable
 private fun GhostRevealCard(ghost: GhostType, modifier: Modifier = Modifier) {
     // 四阶段时序动画
