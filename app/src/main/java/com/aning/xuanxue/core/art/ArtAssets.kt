@@ -42,10 +42,10 @@ object ArtAssets {
     // key = GhostRegistry 的 ghost id
     private val ghosts: Map<String, Int?> = mapOf(
         "you_hun"  to R.drawable.ghost_you_hun,
-        "shui_gui" to null,
-        "yuan_hun" to null,
-        "li_gui"   to null,
-        "shan_mei" to null,
+        "shui_gui" to R.drawable.ghost_shui_gui,
+        "yuan_hun" to R.drawable.ghost_yuan_hun,
+        "li_gui"   to R.drawable.ghost_li_gui,
+        "shan_mei" to R.drawable.ghost_shan_mei,
         "ye_cha"   to null,
         "jiu_mei"  to null,
         "gu_shen"  to null
@@ -54,23 +54,23 @@ object ArtAssets {
     // ── 法器图标 tool_*（透明，512²）─────────────
     // key = XuanTool.name 的小写 / 工具标识
     private val tools: Map<String, Int?> = mapOf(
-        "luopan"      to null, // R.drawable.tool_luopan
-        "wind_bell"   to null,
-        "bronze_mirror" to null,
-        "thermo_talisman" to null,
+        "luopan"      to R.drawable.tool_luopan,
+        "wind_bell"   to R.drawable.tool_wind_bell,
+        "bronze_mirror" to R.drawable.tool_bronze_mirror,
+        "thermo_talisman" to R.drawable.tool_talisman,
         "geo_drum"    to null,
         "omen_lots"   to null,
-        "cinnabar_seal" to null,
-        "peach_sword" to null,
-        "river_seal"  to null,
-        "demon_mirror" to null,
-        "thunder_wood" to null,
-        "soul_bell"   to null,
-        "soothe_talisman" to null
+        "cinnabar_seal" to R.drawable.tool_talisman,   // 朱砂符共用符箓图
+        "peach_sword" to R.drawable.tool_peach_sword,
+        "river_seal"  to R.drawable.tool_talisman,     // 镇河符暂用符箓图
+        "demon_mirror" to R.drawable.tool_bronze_mirror, // 照妖镜共用铜镜图
+        "thunder_wood" to R.drawable.tool_peach_sword, // 雷击木暂用桃木剑图
+        "soul_bell"   to R.drawable.tool_wind_bell,    // 安魂铃共用风铃图
+        "soothe_talisman" to R.drawable.tool_talisman
     )
 
     // ── 启动封面 splash_* ────────────────────────
-    private val splash: Int? = null   // R.drawable.splash_main
+    private val splash: Int? = R.drawable.splash_main
 
     // ─────────────────────────────────────────────
     // 查询接口（GPT 指定的三个函数签名）
