@@ -1,95 +1,90 @@
 package com.aning.xuanxue.core.art
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import com.aning.xuanxue.R
 
 /**
  * 玄机阁 · 美术资源统一索引层（P0 基础设施）
  *
- * 设计原则（采纳 GPT 的 P0 方案）：
- *   1. 所有 R.drawable.xxx 集中在此映射，页面不散写。
- *   2. 资源缺失返回 null —— 由显示组件 fallback，绝不让缺图炸 UI。
- *   3. 命名严格对齐三方约定：bg_case_* / ghost_* / tool_* / splash_*
+ * 资源来源：Grok 41图包 v1（已批处理：场景缩放、鬼影/法器抠透明）
  *
- * 接入新图的唯一改动点：在对应 map 里加一行 "id" to R.drawable.文件名。
- * GPT 出图、阿宁存图后，Claude 只需在这里登记，全项目自动生效。
+ * 类别：
+ *   backgrounds      场景背景（完整场景图，1080×1920）
+ *   ghostScene       鬼怪场景卡（图鉴大图，完整场景）
+ *   ghostSilhouette  鬼怪透明鬼影（捉鬼揭晓/AR叠加，透明720×1080）
+ *   tools            法器图标（透明512×512）
+ *   ui / splash      纹理与封面
  *
- * 当前所有条目为 null（尚无美术资源）—— 全项目走 fallback，
- * 编译运行完全正常。图一到位，把 null 换成 R.drawable.xxx 即可。
+ * 缺图返回 null，由显示组件 fallback，绝不炸 UI。
  */
 object ArtAssets {
 
-    // ── 场景背景 bg_case_* ───────────────────────
-    // key = caseId 或场景标识
+    // ── 场景背景 ─────────────────────────────────
     private val backgrounds: Map<String, Int?> = mapOf(
-        "old_house" to R.drawable.bg_case_old_house,
-        "temple"    to null,   // R.drawable.bg_case_temple
-        "hospital"  to null,
-        "graveyard" to null,
-        "subway"    to null,
-        "城郊荒宅"   to R.drawable.bg_case_old_house    // 中文场景名映射到荒宅
+        "old_house"     to R.drawable.bg_case_old_house,
+        "well"          to R.drawable.bg_case_well,
+        "temple"        to R.drawable.bg_case_temple,
+        "ancestral_hall" to R.drawable.bg_case_ancestral_hall,
+        "graveyard"     to R.drawable.bg_case_graveyard,
+        "old_hospital"  to R.drawable.bg_case_old_hospital,
+        "mountain_path" to R.drawable.bg_case_mountain_path,
+        "fog_alley"     to R.drawable.bg_case_fog_alley,
+        "城郊荒宅"       to R.drawable.bg_case_old_house,
+        "home"          to R.drawable.bg_home_xuanji
     )
 
-    // ── 鬼怪立绘 ghost_*（透明PNG/WebP）──────────
-    // key = GhostRegistry 的 ghost id
-    private val ghosts: Map<String, Int?> = mapOf(
-        "you_hun"  to R.drawable.ghost_you_hun,
-        "shui_gui" to R.drawable.ghost_shui_gui,
-        "yuan_hun" to R.drawable.ghost_yuan_hun,
-        "li_gui"   to R.drawable.ghost_li_gui,
-        "shan_mei" to R.drawable.ghost_shan_mei,
-        "ye_cha"   to null,
-        "jiu_mei"  to null,
-        "gu_shen"  to null
+    // ── 鬼怪场景卡（图鉴大图）─────────────────────
+    private val ghostScene: Map<String, Int?> = mapOf(
+        "you_hun"  to R.drawable.ghost_scene_you_hun,
+        "shui_gui" to R.drawable.ghost_scene_shui_gui,
+        "yuan_hun" to R.drawable.ghost_scene_yuan_hun,
+        "li_gui"   to R.drawable.ghost_scene_li_gui,
+        "shan_mei" to R.drawable.ghost_scene_shan_mei,
+        "ye_cha"   to R.drawable.ghost_scene_ye_cha,
+        "jiu_mei"  to R.drawable.ghost_scene_jiu_mei,
+        "gu_shen"  to R.drawable.ghost_scene_gu_shen
     )
 
-    // ── 法器图标 tool_*（透明，512²）─────────────
-    // key = XuanTool.name 的小写 / 工具标识
+    // ── 鬼怪透明鬼影（捉鬼揭晓/AR）────────────────
+    private val ghostSilhouette: Map<String, Int?> = mapOf(
+        "you_hun"  to R.drawable.ghost_silhouette_you_hun,
+        "shui_gui" to R.drawable.ghost_silhouette_shui_gui,
+        "yuan_hun" to R.drawable.ghost_silhouette_yuan_hun,
+        "li_gui"   to R.drawable.ghost_silhouette_li_gui,
+        "shan_mei" to R.drawable.ghost_silhouette_shan_mei,
+        "ye_cha"   to R.drawable.ghost_silhouette_ye_cha,
+        "jiu_mei"  to R.drawable.ghost_silhouette_jiu_mei,
+        "gu_shen"  to R.drawable.ghost_silhouette_gu_shen
+    )
+
+    // ── 法器图标（透明）──────────────────────────
     private val tools: Map<String, Int?> = mapOf(
-        "luopan"      to R.drawable.tool_luopan,
-        "wind_bell"   to R.drawable.tool_wind_bell,
-        "bronze_mirror" to R.drawable.tool_bronze_mirror,
+        "luopan"          to R.drawable.tool_luopan,
+        "wind_bell"       to R.drawable.tool_wind_bell,
+        "bronze_mirror"   to R.drawable.tool_bronze_mirror,
         "thermo_talisman" to R.drawable.tool_talisman,
-        "geo_drum"    to null,
-        "omen_lots"   to null,
-        "cinnabar_seal" to R.drawable.tool_talisman,   // 朱砂符共用符箓图
-        "peach_sword" to R.drawable.tool_peach_sword,
-        "river_seal"  to R.drawable.tool_talisman,     // 镇河符暂用符箓图
-        "demon_mirror" to R.drawable.tool_bronze_mirror, // 照妖镜共用铜镜图
-        "thunder_wood" to R.drawable.tool_peach_sword, // 雷击木暂用桃木剑图
-        "soul_bell"   to R.drawable.tool_wind_bell,    // 安魂铃共用风铃图
-        "soothe_talisman" to R.drawable.tool_talisman
+        "geo_drum"        to R.drawable.tool_geo_drum,
+        "omen_lots"       to R.drawable.tool_omen_lots,
+        "cinnabar_seal"   to R.drawable.tool_cinnabar_seal,
+        "peach_sword"     to R.drawable.tool_peach_sword,
+        "river_seal"      to R.drawable.tool_river_seal,
+        "demon_mirror"    to R.drawable.tool_demon_mirror,
+        "thunder_wood"    to R.drawable.tool_thunder_wood,
+        "soul_bell"       to R.drawable.tool_soul_bell,
+        "soothe_talisman" to R.drawable.tool_soothe_talisman
     )
 
-    // ── 启动封面 splash_* ────────────────────────
     private val splash: Int? = R.drawable.splash_main
 
     // ─────────────────────────────────────────────
-    // 查询接口（GPT 指定的三个函数签名）
+    // 查询接口
     // ─────────────────────────────────────────────
-    @DrawableRes
-    fun caseBackgroundRes(caseId: String): Int? = backgrounds[caseId]
+    @DrawableRes fun caseBackgroundRes(caseId: String): Int? = backgrounds[caseId]
+    @DrawableRes fun ghostRes(ghostId: String): Int? = ghostScene[ghostId]          // 默认返回场景卡
+    @DrawableRes fun ghostSceneRes(ghostId: String): Int? = ghostScene[ghostId]
+    @DrawableRes fun ghostSilhouetteRes(ghostId: String): Int? = ghostSilhouette[ghostId]
+    @DrawableRes fun toolRes(toolId: String): Int? = tools[toolId]
+    @DrawableRes fun splashRes(): Int? = splash
 
-    @DrawableRes
-    fun ghostRes(ghostId: String): Int? = ghosts[ghostId]
-
-    @DrawableRes
-    fun toolRes(toolId: String): Int? = tools[toolId]
-
-    @DrawableRes
-    fun splashRes(): Int? = splash
-
-    /** 是否已有任何美术资源（用于全局判断要不要走美术模式） */
-    fun hasAnyArt(): Boolean =
-        backgrounds.values.any { it != null } ||
-        ghosts.values.any { it != null } ||
-        tools.values.any { it != null }
+    fun hasAnyArt(): Boolean = true
 }
