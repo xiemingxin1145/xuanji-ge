@@ -26,7 +26,7 @@ fun GhostBestiaryScreen(onBack: () -> Unit, caughtIds: Set<String> = emptySet())
         ) {
             Spacer(Modifier.height(4.dp))
             Text(
-                "出自《山海经》《搜神记》《太平广记》等公共域典籍",
+                "出自《山海经》《搜神记》《太平广记》等公共域典籍；新增三证定鬼推理层。",
                 color = TextSub, fontSize = 12.sp
             )
             GhostRarity.entries.forEach { rarity ->
@@ -95,6 +95,8 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
                 Spacer(Modifier.height(8.dp))
                 Text(ghost.description, color = TextMain, fontSize = 13.sp, lineHeight = 21.sp)
                 Spacer(Modifier.height(10.dp))
+                EvidenceChips(ghost)
+                Spacer(Modifier.height(10.dp))
                 // 克制信息
                 Surface(shape = RoundedCornerShape(8.dp), color = Cinnabar.copy(alpha = 0.08f)) {
                     Text("⚔ 克制：${ghost.weaknessTool}", color = Cinnabar.copy(alpha = 0.9f), fontSize = 11.sp,
@@ -127,6 +129,40 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EvidenceChips(ghost: GhostType) {
+    val evidences = remember(ghost.id) { GhostEvidenceEngine.evidenceFor(ghost) }
+    if (evidences.isEmpty()) return
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("三证定鬼", color = GoldBright, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Row(
+            Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            evidences.forEach { evidence ->
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Gold.copy(alpha = 0.10f),
+                    border = BorderStroke(1.dp, Gold.copy(alpha = 0.28f))
+                ) {
+                    Column(Modifier.widthIn(min = 96.dp, max = 142.dp).padding(horizontal = 8.dp, vertical = 6.dp)) {
+                        Text(evidence.label, color = GoldBright, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(2.dp))
+                        Text(evidence.detector, color = TextSub, fontSize = 9.sp)
+                    }
+                }
+            }
+        }
+        Text(
+            "收齐三条证据后再选克制法器，避免误判反噬。",
+            color = TextSub,
+            fontSize = 10.sp,
+            lineHeight = 15.sp
+        )
     }
 }
 
