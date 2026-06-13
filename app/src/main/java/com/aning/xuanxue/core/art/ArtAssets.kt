@@ -30,18 +30,18 @@ object ArtAssets {
     // ── 场景背景 bg_case_* ───────────────────────
     // key = caseId 或场景标识
     private val backgrounds: Map<String, Int?> = mapOf(
-        "old_house" to null,   // R.drawable.bg_case_old_house
+        "old_house" to R.drawable.bg_case_old_house,
         "temple"    to null,   // R.drawable.bg_case_temple
         "hospital"  to null,
         "graveyard" to null,
         "subway"    to null,
-        "城郊荒宅"   to null    // 中文场景名也映射到荒宅
+        "城郊荒宅"   to R.drawable.bg_case_old_house    // 中文场景名映射到荒宅
     )
 
     // ── 鬼怪立绘 ghost_*（透明PNG/WebP）──────────
     // key = GhostRegistry 的 ghost id
     private val ghosts: Map<String, Int?> = mapOf(
-        "you_hun"  to null,    // R.drawable.ghost_you_hun
+        "you_hun"  to R.drawable.ghost_you_hun,
         "shui_gui" to null,
         "yuan_hun" to null,
         "li_gui"   to null,
