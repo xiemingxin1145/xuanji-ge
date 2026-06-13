@@ -9,6 +9,8 @@ import android.media.ToneGenerator
  *
  * v1.6：支持本机开关保存；当前用系统 ToneGenerator 做轻量提示音，
  * 后续可替换为 SoundPool + res/raw 音效素材。
+ *
+ * v2.2：补充阴阳录探测/取证需要的轻量音效枚举，先不引入音频素材，保证 APK 仍可纯源码构建。
  */
 object XuanSound {
     enum class Effect {
@@ -18,7 +20,11 @@ object XuanSound {
         Warning,
         Draw,
         Compass,
-        AiReply
+        AiReply,
+        Bell,
+        Wind,
+        Seal,
+        GhostNear
     }
 
     private const val PREFS = "xuan_sound_prefs"
@@ -56,6 +62,10 @@ object XuanSound {
                 Effect.Draw -> ToneGenerator.TONE_PROP_BEEP2
                 Effect.Compass -> ToneGenerator.TONE_PROP_BEEP
                 Effect.AiReply -> ToneGenerator.TONE_PROP_ACK
+                Effect.Bell -> ToneGenerator.TONE_PROP_BEEP2
+                Effect.Wind -> ToneGenerator.TONE_PROP_NACK
+                Effect.Seal -> ToneGenerator.TONE_PROP_PROMPT
+                Effect.GhostNear -> ToneGenerator.TONE_PROP_NACK
             }
             val duration = when (effect) {
                 Effect.Click -> 36
@@ -65,6 +75,10 @@ object XuanSound {
                 Effect.Draw -> 64
                 Effect.Compass -> 32
                 Effect.AiReply -> 60
+                Effect.Bell -> 42
+                Effect.Wind -> 120
+                Effect.Seal -> 110
+                Effect.GhostNear -> 150
             }
             generator.startTone(toneType, duration)
         } catch (_: Throwable) {
