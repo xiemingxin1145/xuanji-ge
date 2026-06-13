@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -49,9 +49,28 @@ jobs:
             --title "Build failure #${{ github.run_id }}" \
             --body-file err.md || true
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: xuanji-ge-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+
+      - name: Get version name
+        id: ver
+        run: |
+          VER=$(grep versionName app/build.gradle.kts | grep -oP '(?<=")[^"]+')
+          echo "ver=$VER" >> $GITHUB_OUTPUT
+          echo "tag=v${VER}-build${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release with APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          gh release create "$TAG" "$APK" \
+            --repo "${{ github.repository }}" \
+            --title "玄机阁 ${{ steps.ver.outputs.ver }} (build ${{ github.run_number }})" \
+            --notes "自动构建 · commit: ${{ github.sha }}" \
+            --prerelease || true
