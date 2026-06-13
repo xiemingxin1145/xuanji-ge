@@ -28,6 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Canvas
 import com.aning.xuanxue.feature.ghost.GhostRegistry
+import com.aning.xuanxue.core.art.XuanBackgroundImage
+import com.aning.xuanxue.core.art.ToolIcon
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -60,7 +62,7 @@ fun InvestigationScreen(
     }
 
     Scaffold(
-        containerColor = InkBlack,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text("玄机阁 · 第一夜", color = GoldBright, fontWeight = FontWeight.Bold) },
@@ -71,20 +73,24 @@ fun InvestigationScreen(
             )
         }
     ) { pad ->
-        Column(
-            Modifier
-                .padding(pad)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (state.phase) {
-                InvestigationPhase.BRIEFING    -> BriefingView(state, vm)
-                InvestigationPhase.INVESTIGATE -> InvestigateView(state, compass, vm)
-                InvestigationPhase.DEDUCE      -> DeduceView(state, vm)
-                InvestigationPhase.SEAL        -> SealView(state, vm)
-                InvestigationPhase.RESULT      -> ResultView(state, vm, onBack)
+        Box(Modifier.padding(pad).fillMaxSize()) {
+            // P0：场景背景。有美术资源显图，无图回退深色渐变（治"黑乎乎"）
+            XuanBackgroundImage(caseId = "城郊荒宅")
+
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (state.phase) {
+                    InvestigationPhase.BRIEFING    -> BriefingView(state, vm)
+                    InvestigationPhase.INVESTIGATE -> InvestigateView(state, compass, vm)
+                    InvestigationPhase.DEDUCE      -> DeduceView(state, vm)
+                    InvestigationPhase.SEAL        -> SealView(state, vm)
+                    InvestigationPhase.RESULT      -> ResultView(state, vm, onBack)
+                }
             }
         }
     }
@@ -281,7 +287,7 @@ private fun DetectorButton(tool: XuanTool, modifier: Modifier, onClick: () -> Un
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(tool.icon, fontSize = 22.sp)
+            ToolIcon(toolId = tool.name.lowercase(), fallbackEmoji = tool.icon, size = 28)
             Text(tool.label, color = GoldBright, fontSize = 14.sp)
         }
     }
@@ -384,7 +390,7 @@ private fun SealView(state: InvestigationState, vm: InvestigationViewModel) {
         ) {
             Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(tool.icon, fontSize = 26.sp)
+                ToolIcon(toolId = tool.name.lowercase(), fallbackEmoji = tool.icon, size = 32)
                 Column(Modifier.weight(1f)) {
                     Text(tool.label, color = GoldBright, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Text(tool.intro, color = GoldDim, fontSize = 11.sp, lineHeight = 15.sp)
