@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import com.aning.xuanxue.ui.*
+import com.aning.xuanxue.feature.investigation.GhostCaseTable
+import com.aning.xuanxue.feature.investigation.XuanTool
 
 /**
  * 鬼怪图鉴 — 山海经来源，民俗典故解说
@@ -134,8 +136,12 @@ private fun GhostBestiaryCard(ghost: GhostType, caught: Boolean) {
 
 @Composable
 private fun EvidenceChips(ghost: GhostType) {
-    val evidences = remember(ghost.id) { GhostEvidenceEngine.evidenceFor(ghost) }
-    if (evidences.isEmpty()) return
+    // 从统一的 investigation 主系统取该鬼的证据画像
+    val profile = remember(ghost.id) {
+        GhostCaseTable.profiles.firstOrNull { it.ghostId == ghost.id }
+    }
+    if (profile == null) return
+    val evidences = remember(ghost.id) { profile.evidences.toList() }
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text("三证定鬼", color = GoldBright, fontSize = 11.sp, fontWeight = FontWeight.Bold)
@@ -144,21 +150,24 @@ private fun EvidenceChips(ghost: GhostType) {
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             evidences.forEach { evidence ->
+                // 找出能探测该证据的法器名
+                val detector = XuanTool.detectors
+                    .firstOrNull { evidence in it.detects }?.label ?: "—"
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = Gold.copy(alpha = 0.10f),
                     border = BorderStroke(1.dp, Gold.copy(alpha = 0.28f))
                 ) {
                     Column(Modifier.widthIn(min = 96.dp, max = 142.dp).padding(horizontal = 8.dp, vertical = 6.dp)) {
-                        Text(evidence.label, color = GoldBright, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        Text("${evidence.icon} ${evidence.label}", color = GoldBright, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(2.dp))
-                        Text(evidence.detector, color = TextSub, fontSize = 9.sp)
+                        Text(detector, color = TextSub, fontSize = 9.sp)
                     }
                 }
             }
         }
         Text(
-            "收齐三条证据后再选克制法器，避免误判反噬。",
+            "克星：${profile.weaknessTool.label}　收齐三证再镇压，避免误判反噬。",
             color = TextSub,
             fontSize = 10.sp,
             lineHeight = 15.sp
