@@ -70,6 +70,7 @@ import com.aning.xuanxue.feature.xuanhuang.XuanhuangDashboardScreen
 import com.aning.xuanxue.feature.xuanji.XuanjiResonanceDemoScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aning.xuanxue.core.state.GameStateViewModel
+import com.aning.xuanxue.core.store.PlayerViewModel
 import com.aning.xuanxue.feature.case_engine.CaseListScreen
 import com.aning.xuanxue.feature.daily.DailyQuestScreen
 import com.aning.xuanxue.feature.onboarding.OnboardingScreen
@@ -101,6 +102,7 @@ fun AppNav() {
     }
 
     val gameVm: GameStateViewModel = viewModel()
+    val playerVm: PlayerViewModel = viewModel()   // Activity 级单例，全局共享
         val onboardingDone by gameVm.onboardingDone.collectAsState()
         NavHost(navController = nav, startDestination = "splash") {
         composable("splash") {
@@ -159,10 +161,11 @@ fun AppNav() {
             CasePlayScreen(
                 caseId = caseId,
                 onBack = { nav.popBackStack() },
-                onNavigateTool = { route -> nav.navigate(route) }
+                onNavigateTool = { route -> nav.navigate(route) },
+                playerVm = playerVm
             )
         }
-        composable("ghost_hunt") { GhostHuntScreen(onBack = { nav.popBackStack() }) }
+        composable("ghost_hunt") { GhostHuntScreen(onBack = { nav.popBackStack() }, playerVm = playerVm) }
         composable("ghost_bestiary") { GhostBestiaryScreen(onBack = { nav.popBackStack() }) }
         composable("cultivation") { CultivationScreen(onBack = { nav.popBackStack() }) }
         composable("daily_tasks") {
