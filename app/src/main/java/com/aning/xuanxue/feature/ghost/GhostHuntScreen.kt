@@ -61,14 +61,14 @@ fun GhostHuntScreen(onBack: () -> Unit, playerVm: PlayerViewModel) {
                 Random.nextFloat() * 300f + 80f
             )
             huntState = HuntState.Spawned(ghost, pos)
-            message = "感应到【${ghost.name}】！快速点击锁定！"
+            message = "感应到一缕【未知灵体】！快速点击锁定！"
             XuanSound.play(context, XuanSound.Effect.Click)
             // 鬼魂10秒后逃跑
             scope.launch {
                 delay(10000L)
                 if (huntState is HuntState.Spawned) {
                     huntState = HuntState.Fled(ghost)
-                    message = "【${ghost.name}】消散了……再等等"
+                    message = "那灵体消散了……再等等"
                     delay(2000)
                     huntState = HuntState.Idle
                 }
@@ -108,7 +108,7 @@ fun GhostHuntScreen(onBack: () -> Unit, playerVm: PlayerViewModel) {
                 message = "感应天地气息，等待鬼魂显形……"
             } else if (huntState is HuntState.Fled) {
                 val fled = huntState as HuntState.Fled
-                message = "【${fled.ghost.name}】挣脱了！符咒能量不足……"
+                message = "那灵体挣脱了！符咒能量不足……"
                 delay(2000)
                 huntState = HuntState.Idle
             }
@@ -355,6 +355,9 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGhostEntity(
 @Composable
 private fun GhostInfoCard(ghost: GhostType, state: HuntState) {
     val sealCharge = (state as? HuntState.Locked)?.sealCharge ?: 0f
+    // 任务①：战斗中不剧透鬼种。Spawned/Locked 阶段一律显示"未知灵体"，
+    // 仅保留品级颜色作为"这个值不值钱"的模糊视觉线索，镇压成功后才在结算揭晓真名。
+    val revealed = state is HuntState.Caught
     Surface(
         Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -364,12 +367,24 @@ private fun GhostInfoCard(ghost: GhostType, state: HuntState) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(ghost.name, color = ghost.rarity.color, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                    Text("${ghost.rarity.label} · ${ghost.element.label}属性 · 难度${"★".repeat(ghost.catchDifficulty)}", color = TextSub, fontSize = 10.sp)
+                    Text(
+                        if (revealed) ghost.name else "未知灵体",
+                        color = ghost.rarity.color, fontSize = 17.sp, fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        if (revealed)
+                            "${ghost.rarity.label} · ${ghost.element.label}属性 · 难度${"★".repeat(ghost.catchDifficulty)}"
+                        else
+                            "气息不明 · 属性未知 · 凶险难测",
+                        color = TextSub, fontSize = 10.sp
+                    )
                 }
                 Surface(shape = RoundedCornerShape(6.dp), color = Color(0xFF00FF9C).copy(alpha = 0.15f)) {
-                    Text("鬼气+${ghost.dropEssence}", color = Color(0xFF00FF9C), fontSize = 11.sp,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
+                    Text(
+                        if (revealed) "鬼气+${ghost.dropEssence}" else "鬼气 ???",
+                        color = Color(0xFF00FF9C), fontSize = 11.sp,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                    )
                 }
             }
             if (sealCharge > 0f) {
